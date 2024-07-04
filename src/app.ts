@@ -1,8 +1,16 @@
 import Fastify from 'fastify'
-import { getDatabase, resetDatabase } from './database/Database';
+import fastifyMysql from '@fastify/mysql';
 
 const fastify = Fastify({
     logger: true
+})
+
+// database connection
+fastify.register(fastifyMysql, {
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'fastify'
 })
 
 // user routes
@@ -11,7 +19,6 @@ fastify.register(require('./routes/UserRoutes.ts'));
 // start
 async function start() {
     try {
-        await resetDatabase();
         await fastify.listen({ port: 3000 })
     } catch (err) {
         fastify.log.error(err)
