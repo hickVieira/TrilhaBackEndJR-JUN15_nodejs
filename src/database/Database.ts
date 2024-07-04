@@ -1,21 +1,32 @@
-// import fastifyMysql from "@fastify/mysql";
-// import fs from "fs";
+import mysql from 'mysql2/promise';
+import fs from 'fs';
 
-// export async function resetDatabase() {
-//     if (!fs.existsSync("src/database/database.db")) {
-//         return;
-//     }
-    
-//     // delete database
-//     fs.unlinkSync("src/database/database.db");
+export default class Database {
+    static pool: mysql.Pool
 
-//     // open sql file
-//     const sql = fs.readFileSync("src/database/dbreset.sql", 'utf8');
+    public static async get() {
+        if (!this.pool)
+            this.pool = mysql.createPool({
+                host: 'localhost',
+                user: 'root',
+                database: 'test',
+                waitForConnections: true,
+                connectionLimit: 10,
+                maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
+                idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
+                queueLimit: 0,
+                enableKeepAlive: true,
+                keepAliveInitialDelay: 0,
+            });
+        return this.pool;
+    }
 
-//     // run sql
-//     const db = await getDatabase();
-//     db.serialize(() => {
-//         db.run(sql);
-//     })
-//     db.close()
-// }
+    public static async reset() {
+        // open sql file
+        const sql = fs.readFileSync("src/database/dbreset.sql", 'utf8');
+
+        // run sql
+        const db = await this.get();
+        db.execute(sql);
+    }
+}

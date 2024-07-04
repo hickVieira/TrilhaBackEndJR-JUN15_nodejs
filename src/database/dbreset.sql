@@ -1,20 +1,20 @@
-CREATE TABLE users (
-    id integer PRIMARY KEY AUTOINCREMENT,
-    name varchar(255) NOT NULL,
-    email varchar(255) UNIQUE NOT NULL,
-    password varchar(255) NOT NULL
+CREATE TABLE `users` (
+    `id` integer PRIMARY KEY AUTOINCREMENT,
+    `name` varchar(255) NOT NULL,
+    `email` varchar(255) UNIQUE NOT NULL,
+    `password` varchar(255) NOT NULL
 );
 
-CREATE TABLE tasks (
-    id integer PRIMARY KEY AUTOINCREMENT,
-    owner_id integer,
-    name varchar(255) NOT NULL,
-    description text,
-    priority int NOT NULL,
-    points int NOT NULL,
-    startDate date,
-    endDate date,
-    done boolean NOT NULL
+CREATE TABLE `tasks` (
+    `id` integer PRIMARY KEY AUTOINCREMENT,
+    `owner_id` integer,
+    `name` varchar(255) NOT NULL,
+    `description` text,
+    `priority` int NOT NULL,
+    `points` int NOT NULL,
+    `startDate` date,
+    `endDate` date,
+    `done` boolean NOT NULL
 );
 
 -- fake entries
