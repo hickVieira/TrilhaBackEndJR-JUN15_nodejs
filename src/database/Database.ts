@@ -1,12 +1,13 @@
-import mysql from 'mysql2/promise';
+import mysql2 from 'mysql2/promise';
 import fs from 'fs';
+import path from 'path';
 
 export default class Database {
-    static pool: mysql.Pool
+    static pool: mysql2.Pool
 
     public static async get() {
         if (!this.pool)
-            this.pool = await mysql.createPool({
+            this.pool = await mysql2.createPool({
                 host: process.env.DB_HOST,
                 user: process.env.DB_USER,
                 password: process.env.DB_ROOT_PASSWORD,
@@ -26,10 +27,17 @@ export default class Database {
 
     public static async reset() {
         // open sql file
-        let sql = fs.readFileSync("src/database/dbreset.sql", 'utf8');
+        let sql = fs.readFileSync(path.resolve(__dirname, "..", "dbreset.sql"), 'utf8');
 
         // run sql
         const db = await this.get();
-        await db.query(sql);
+
+        await db.query(sql).then(() => {
+            console.log("Database reset");
+        }).catch((err) => {
+            console.error("Error reseting database");
+            console.error(err);
+            this.reset();
+        });
     }
 }

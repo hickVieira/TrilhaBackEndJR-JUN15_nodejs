@@ -1,13 +1,24 @@
-version: '1.0'
-
 services:
-  # app:
-  #   build: .
-  #   ports:
-  #     - ${APP_PORT}:${APP_PORT}
+  app:
+    container_name: app
+    build: .
+    restart: always
+    depends_on:
+      - db
+    environment:
+      APP_PORT: ${APP_PORT}
+      APP_HOST: ${APP_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_USER: ${DB_USER}
+    ports:
+      - ${APP_PORT}:${APP_PORT}
 
   db:
-    image: mysql
+    container_name: db
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -20,7 +31,7 @@ services:
   adminer:
     image: adminer
     restart: always
+    depends_on:
+      - db
     ports:
       - ${ADMINER_PORT}:${ADMINER_PORT}
-
-      

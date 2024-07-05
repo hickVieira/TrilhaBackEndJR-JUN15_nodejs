@@ -1,20 +1,22 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
-WORKDIR /build
+WORKDIR /app
 
-COPY package.json /build
-COPY tsconfig.json /build
-COPY src /build/src
+COPY package.json .
+COPY tsconfig.json .
+COPY src ./src
+COPY .env .
 
-RUN cd /build
 RUN npm install
 RUN npm run build
+RUN npm prune --omit=dev
 
-COPY ./app ../app
+RUN ls dist/src
+COPY src/dbreset.sql ./dist/src
+RUN ls dist/src
 
-RUN cd ..
-RUN rm -rf /build
+RUN rm -rf /src
+RUN rm -rf /tsconfig.json
+RUN rm -rf /.env
 
-CMD [ "node", "app/app.js" ]
-
-EXPOSE 3000
+CMD ["npm", "start"]
