@@ -6,27 +6,30 @@ export default class Database {
 
     public static async get() {
         if (!this.pool)
-            this.pool = mysql.createPool({
-                host: 'localhost',
-                user: 'root',
-                database: 'test',
+            this.pool = await mysql.createPool({
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_ROOT_PASSWORD,
+                database: process.env.DB_NAME,
+                port: Number(process.env.DB_PORT),
                 waitForConnections: true,
                 connectionLimit: 10,
                 maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
                 idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
                 queueLimit: 0,
                 enableKeepAlive: true,
-                keepAliveInitialDelay: 0,
+                multipleStatements: true,
             });
+
         return this.pool;
     }
 
     public static async reset() {
         // open sql file
-        const sql = fs.readFileSync("src/database/dbreset.sql", 'utf8');
+        let sql = fs.readFileSync("src/database/dbreset.sql", 'utf8');
 
         // run sql
         const db = await this.get();
-        db.execute(sql);
+        await db.query(sql);
     }
 }
