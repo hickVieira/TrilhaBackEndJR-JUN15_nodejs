@@ -4,7 +4,6 @@
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "build": "npx tsc",
-    "start": "node app/app.js",
     "test": "node"
   },
   "keywords": [],
@@ -23,6 +22,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
     "mysql2": "^3.10.2"
   }
