@@ -1,0 +1,26 @@
+version: '1.0'
+
+services:
+  # app:
+  #   build: .
+  #   ports:
+  #     - ${APP_PORT}:${APP_PORT}
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    expose:
+      - ${DB_PORT}
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - ${ADMINER_PORT}:${ADMINER_PORT}
+
+      
