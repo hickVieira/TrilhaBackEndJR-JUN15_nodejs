@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
 import Database from "./database/Database"
-import routes from './routes/UserRoutes'
+import UserRoutes from './routes/UserRoutes'
+import TaskRoutes from './routes/TaskRoutes'
 import dotenv from 'dotenv'
 // import dns from 'node:dns';
 
@@ -9,7 +10,8 @@ const fastify = Fastify({
 })
 
 // user routes
-fastify.register(routes);
+fastify.register(UserRoutes);
+fastify.register(TaskRoutes);
 
 // start
 async function start() {
