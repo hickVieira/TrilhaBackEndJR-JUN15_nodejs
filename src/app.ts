@@ -3,6 +3,7 @@ import Database from "./database/Database"
 import UserRoutes from './routes/UserRoutes'
 import TaskRoutes from './routes/TaskRoutes'
 import dotenv from 'dotenv'
+dotenv.config()
 // import dns from 'node:dns';
 
 const fastify = Fastify({
@@ -16,7 +17,6 @@ fastify.register(TaskRoutes);
 // start
 async function start() {
     try {
-        dotenv.config()
         // dns.setDefaultResultOrder('ipv4first');
         await Database.reset()
         await fastify.listen({ port: Number(process.env.APP_PORT), host: process.env.APP_HOST })
