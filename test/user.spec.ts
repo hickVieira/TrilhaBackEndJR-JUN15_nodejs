@@ -2,8 +2,9 @@ import supertest from "supertest"
 import { User } from "../src/models/UserModels"
 import Database from "../src/database/Database"
 import dotenv from "dotenv"
+dotenv.config()
 
-const request = supertest("http://localhost:3000")
+const request = supertest(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
 
 async function resetDabase() {
     dotenv.config()
