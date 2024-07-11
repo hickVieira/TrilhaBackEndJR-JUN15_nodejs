@@ -8,6 +8,7 @@ declare global {
             DB_NAME: string;
             DB_ROOT_PASSWORD: string;
             DB_USER: string;
+            JWT_SECRET: string
         }
     }
 }

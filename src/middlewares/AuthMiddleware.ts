@@ -1,18 +1,30 @@
 import { FastifyRequest, FastifyReply, HookHandlerDoneFunction } from "fastify"
-import HttpStatusCodes from "http-status-codes"
+import StatusCodes from "http-status-codes"
 
-export default function AuthMiddleware(request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) {
+export function AdminAuth(request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) {
     const { authorization } = request.headers
 
     if (!authorization) {
-        reply.status(HttpStatusCodes.UNAUTHORIZED).send({
-            error: "Unauthorized"
+        reply.status(StatusCodes.UNAUTHORIZED).send({
+            message: "User does not have permission"
         })
         return;
     }
 
     const token = authorization.split(" ")[1]
     // const user = 
+}
 
+export function UserAuth(request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) {
+    const { authorization } = request.headers
 
+    if (!authorization) {
+        reply.status(StatusCodes.UNAUTHORIZED).send({
+            message: "User does not have permission"
+        })
+        return;
+    }
+
+    const token = authorization.split(" ")[1]
+    // const user = 
 }
