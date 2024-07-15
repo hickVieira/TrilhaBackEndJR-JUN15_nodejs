@@ -8,7 +8,8 @@ CREATE TABLE `users` (
     `id` integer PRIMARY KEY AUTO_INCREMENT,
     `name` varchar(255) NOT NULL,
     `email` varchar(255) UNIQUE NOT NULL,
-    `password` varchar(255) NOT NULL
+    `password` varchar(255) NOT NULL,
+    `isAdmin` boolean NOT NULL
 );
 
 CREATE TABLE `tasks` (
@@ -25,11 +26,11 @@ CREATE TABLE `tasks` (
 
 -- fake entries
 
-INSERT INTO users (name, email, password) VALUES
-    ('John Doe', 'john@example.com', 'password123'),
-    ('Jane Smith', 'jane@example.com', 'qwerty123'),
-    ('Fulano Siclano', 'fulano@example.com', 'brasil123'),
-    ('Luizo Henrico', 'luizeco@example.com', 'abc123');
+INSERT INTO users (name, email, password, isAdmin) VALUES
+    ('John Doe', 'john@example.com', 'password123', true),
+    ('Jane Smith', 'jane@example.com', 'qwerty123', false),
+    ('Fulano Siclano', 'fulano@example.com', 'brasil123', false),
+    ('Luizo Henrico', 'luizeco@example.com', 'abc123', false);
 
 INSERT INTO tasks (owner_id, name, description, priority, points, startDate, endDate, done) VALUES
     (1, 'Task 1', 'This is task 1', 1, 10, '2023-01-01', '2023-01-15', 0),
