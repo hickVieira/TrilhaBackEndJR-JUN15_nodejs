@@ -96,15 +96,23 @@ describe("User", () => {
     it("should update/patch a user as a user", async () => {
         const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
 
-        const response = await request.patch(`/users/${payload.id}`)
+        const response1 = await request.patch(`/users/${payload.id}`)
             .send({
                 name: "John Doe New Name",
                 email: "john-new-email@example.com",
                 password: "password123-new-password"
             })
             .set("Authorization", `Bearer ${userToken}`)
+        expect(response1.status).toBe(StatusCodes.OK)
 
-        expect(response.status).toBe(StatusCodes.OK)
+        // check if the user was updated
+        const response2 = await request.get(`/users/${payload.id}`)
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response2.status).toBe(StatusCodes.OK)
+        expect(response2.body).toHaveProperty("name", "John Doe New Name")
+        expect(response2.body).toHaveProperty("email", "john-new-email@example.com")
+        expect(response2.body).toHaveProperty("password", "password123-new-password")
+        expect(response2.body).toHaveProperty("isAdmin", 1)
     })
 
     it("should delete a user as admin", async () => {
