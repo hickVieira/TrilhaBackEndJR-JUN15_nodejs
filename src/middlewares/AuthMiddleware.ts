@@ -23,8 +23,6 @@ export async function UserAuth(request: FastifyRequest, reply: FastifyReply, don
         })
         return;
     }
-
-    done()
 }
 
 export async function AdminAuth(request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) {
@@ -49,14 +47,7 @@ export async function AdminAuth(request: FastifyRequest, reply: FastifyReply, do
 
     const payload = jwt.body.toJSON() as any
 
-    // if (!payload.isAdmin) {
-    //     reply.status(StatusCodes.UNAUTHORIZED).send({
-    //         message: "User does not have permission"
-    //     })
-    //     return;
-    // }
-
-    let isAdmin: boolean;
+    let isAdmin: boolean = false;
     try {
         const db = await Database.get()
 
@@ -76,8 +67,11 @@ export async function AdminAuth(request: FastifyRequest, reply: FastifyReply, do
         reply.status(StatusCodes.UNAUTHORIZED).send({
             message: "User does not have permission"
         })
-        return;
     }
 
-    done()
+    if (!isAdmin) {
+        reply.status(StatusCodes.UNAUTHORIZED).send({
+            message: "User does not have permission"
+        })
+    }
 }
