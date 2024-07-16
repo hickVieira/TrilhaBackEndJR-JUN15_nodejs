@@ -1,8 +1,21 @@
 import supertest from "supertest"
 import njwt from 'njwt';
 import utils from "../src/utils";
+import dotenv from "dotenv"
+import Database from "../src/database/Database";
 
 export default class test_utils {
+
+    public static async get_connection(): Promise<supertest.Agent> {
+        dotenv.config()
+        return supertest(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+    }
+
+    public static async resetDabase() {
+        dotenv.config()
+        await Database.reset()
+    }
+
     public static async login_user(request: supertest.Agent, email: string, password: string): Promise<[any, string]> {
         const loginResponse = await request.post("/login").send({
             email: "john@example.com",

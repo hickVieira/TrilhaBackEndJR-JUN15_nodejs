@@ -1,23 +1,18 @@
 import supertest from "supertest"
 import { User, UserWithId } from "../src/models/UserModels"
 import Database from "../src/database/Database"
-import dotenv from "dotenv"
 import utils from "../src/utils"
 import njwt from 'njwt';
 import test_utils from "./test_utils"
 import { StatusCodes } from "http-status-codes"
-dotenv.config()
-
-const request = supertest(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
-
-async function resetDabase() {
-    dotenv.config()
-    await Database.reset()
-}
 
 describe("User routes tests", () => {
+
+    let request: supertest.Agent;
+
     beforeEach(async () => {
-        await resetDabase()
+        await test_utils.resetDabase()
+        request = await test_utils.get_connection();
     })
 
     it("should get all users as admin", async () => {
