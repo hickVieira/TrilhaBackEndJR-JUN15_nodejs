@@ -83,27 +83,19 @@ describe("Task routes tests", () => {
 
     it("should create a task", async () => {
         const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
-        const response = await request.post(`/tasks/user/${payload.id}`).send({
-            name: "task name",
-            description: "task description",
-            priority: 1,
-            points: 1,
-            startDate: new Date(),
-            endDate: new Date(),
-            done: false
-        })
+        const response = await request.post(`/tasks/user/${payload.id}`)
+            .send({
+                name: "task name",
+                description: "task description",
+                priority: 1,
+                points: 1,
+                startDate: new Date(),
+                endDate: new Date(),
+                done: false
+            })
+            .set("Authorization", `Bearer ${userToken}`)
         expect(response.status).toBe(StatusCodes.CREATED)
         expect(response.body).toHaveProperty("message")
         expect(response.body.message).toBe("Task created successfully")
-        expect(response.body).toHaveProperty("task")
-        expect(response.body.task).toHaveProperty("id")
-        expect(response.body.task).toHaveProperty("owner_id")
-        expect(response.body.task).toHaveProperty("name")
-        expect(response.body.task).toHaveProperty("description")
-        expect(response.body.task).toHaveProperty("priority")
-        expect(response.body.task).toHaveProperty("points")
-        expect(response.body.task).toHaveProperty("startDate")
-        expect(response.body.task).toHaveProperty("endDate")
-        expect(response.body.task).toHaveProperty("done")
     })
 })

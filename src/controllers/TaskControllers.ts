@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify"
 import { Task, TaskWithOwnerId } from "../models/TaskModels"
 import Database from "../database/Database"
 import { StatusCodes } from "http-status-codes"
+import utils from "../utils"
 
 export async function get_all_tasks(request: FastifyRequest, reply: FastifyReply) {
     try {
@@ -62,12 +63,10 @@ export async function create_task(request: FastifyRequest, reply: FastifyReply) 
         const params = request.params as { id: number }
         const task = request.body as Task
 
-        await db.query("INSERT INTO tasks (owner_id, name, description, priority, points, startDate, endDate, done) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [params.id, task.name, task.description, task.priority, task.points, task.startDate, task.endDate, task.done])
+        await db.query("INSERT INTO tasks (owner_id, name, description, priority, points, startDate, endDate, done) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [Number(params.id), task.name, task.description, task.priority, task.points, utils.format_date_to_sql(task.startDate), utils.format_date_to_sql(task.endDate), task.done])
             .then((result) => {
-                const tasks = result[0] as Task[]
                 reply.status(StatusCodes.CREATED).send({
                     message: "Task created successfully",
-                    task: tasks[0] as Task,
                 })
                 return
             })
