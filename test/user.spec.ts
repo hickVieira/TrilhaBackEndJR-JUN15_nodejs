@@ -55,6 +55,8 @@ describe("User routes tests", () => {
             isAdmin: false
         })
         expect(response.status).toBe(StatusCodes.CREATED)
+        expect(response.body).toHaveProperty("message")
+        expect(response.body.message).toBe("User created successfully")
     })
 
     it("should login a user", async () => {
