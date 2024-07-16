@@ -27,6 +27,9 @@ describe("User", () => {
         expect(response.status).toBe(StatusCodes.OK)
         expect(response.body).toBeInstanceOf(Array)
         expect(response.body.length).toBeGreaterThan(0)
+        expect(response.body[0]).toHaveProperty("name");
+        expect(response.body[0]).toHaveProperty("email");
+        expect(response.body[0]).toHaveProperty("password");
     })
 
     it("should fail to get all users as non-admin", async () => {
