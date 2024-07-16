@@ -15,7 +15,7 @@ async function resetDabase() {
     await Database.reset()
 }
 
-describe("User", () => {
+describe("User routes tests", () => {
     beforeEach(async () => {
         await resetDabase()
     })
