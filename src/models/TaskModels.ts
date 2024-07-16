@@ -17,3 +17,21 @@ export class Task {
         this.done = done
     }
 }
+
+export class TaskWithOwnerId extends Task {
+    public owner_id: number
+
+    constructor(owner_id: number, name: string, description: string, priority: number, points: number, startDate: Date, endDate: Date, done: boolean) {
+        super(name, description, priority, points, startDate, endDate, done)
+        this.owner_id = owner_id
+    }
+}
+
+export class TaskWithId extends TaskWithOwnerId {
+    public id: number
+
+    constructor(id: number, owner_id: number, name: string, description: string, priority: number, points: number, startDate: Date, endDate: Date, done: boolean) {
+        super(owner_id, name, description, priority, points, startDate, endDate, done)
+        this.id = id
+    }
+}
