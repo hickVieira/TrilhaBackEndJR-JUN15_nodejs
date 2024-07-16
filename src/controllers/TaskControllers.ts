@@ -64,9 +64,10 @@ export async function create_task(request: FastifyRequest, reply: FastifyReply) 
 
         await db.query("INSERT INTO tasks (owner_id, name, description, priority, points, startDate, endDate, done) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [params.id, task.name, task.description, task.priority, task.points, task.startDate, task.endDate, task.done])
             .then((result) => {
+                const tasks = result[0] as Task[]
                 reply.status(StatusCodes.CREATED).send({
-                    message: "Task created",
-                    task: (result[0] as Task[])[0],
+                    message: "Task created successfully",
+                    task: tasks[0] as Task,
                 })
                 return
             })
