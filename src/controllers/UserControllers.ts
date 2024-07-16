@@ -60,8 +60,7 @@ export async function create_user(request: FastifyRequest, reply: FastifyReply) 
         await db.query("INSERT INTO users (name, email, password, isAdmin) VALUES (?, ?, ?, ?)", [user.name, user.email, user.password, user.isAdmin])
             .then((result) => {
                 reply.status(StatusCodes.CREATED).send({
-                    message: "User created",
-                    user: (result[0] as User[])[0],
+                    message: "User created successfully",
                 })
                 return
             })
