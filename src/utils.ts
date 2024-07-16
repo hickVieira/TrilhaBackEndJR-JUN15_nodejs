@@ -12,4 +12,10 @@ export default class utils {
     public static verify_token(token: string, secret: string): njwt.Jwt | undefined {
         return njwt.verify(token, secret, this.algo);
     }
+
+    public static format_date_to_sql(date: Date): string {
+        return new Date(date).toISOString().slice(0, 19).replace("T", " ")
+        // return date.toISOString().split('T')[0] as string;
+        // return date.toISOString().slice(0, 19).replace('T', ' ');
+    }
 }
