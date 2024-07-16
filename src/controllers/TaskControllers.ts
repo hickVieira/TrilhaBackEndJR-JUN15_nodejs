@@ -1,11 +1,77 @@
 import { FastifyRequest, FastifyReply } from "fastify"
-import { Task } from "../models/TaskModels"
+import { Task, TaskWithOwnerId } from "../models/TaskModels"
 import Database from "../database/Database"
+import { StatusCodes } from "http-status-codes"
 
 export async function get_all_tasks(request: FastifyRequest, reply: FastifyReply) {
-    const db = await Database.get()
+    try {
+        const db = await Database.get()
 
-    const result = await db.query("SELECT name, description, priority, points, startDate, endDate, done FROM tasks")
-    
-    reply.send(result[0] as Task[])
+        await db.query("SELECT owner_id, name, description, priority, points, startDate, endDate, done FROM tasks")
+            .then((result) => {
+                const tasks = result[0] as TaskWithOwnerId[]
+                reply.status(StatusCodes.OK).send(tasks as TaskWithOwnerId[])
+                return
+            })
+    }
+    catch (error) {
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+}
+
+export async function get_task_by_id(request: FastifyRequest, reply: FastifyReply) {
+    try {
+        const db = await Database.get()
+
+        const params = request.params as { id: number }
+
+        await db.query("SELECT owner_id, name, description, priority, points, startDate, endDate, done FROM tasks WHERE id = ?", [params.id])
+            .then((result) => {
+                const tasks = result[0] as TaskWithOwnerId[]
+                reply.status(StatusCodes.OK).send(tasks[0] as TaskWithOwnerId)
+                return
+            })
+    }
+    catch (error) {
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+}
+
+export async function get_all_tasks_by_user_id(request: FastifyRequest, reply: FastifyReply) {
+    try {
+        const db = await Database.get()
+
+        const params = request.params as { id: number }
+
+        await db.query("SELECT owner_id, name, description, priority, points, startDate, endDate, done FROM tasks WHERE owner_id = ?", [params.id])
+            .then((result) => {
+                const tasks = result[0] as TaskWithOwnerId[]
+                reply.status(StatusCodes.OK).send(tasks as TaskWithOwnerId[])
+                return
+            })
+    }
+    catch (error) {
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+}
+
+export async function create_task(request: FastifyRequest, reply: FastifyReply) {
+    try {
+        const db = await Database.get()
+
+        const params = request.params as { id: number }
+        const task = request.body as Task
+
+        await db.query("INSERT INTO tasks (owner_id, name, description, priority, points, startDate, endDate, done) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [params.id, task.name, task.description, task.priority, task.points, task.startDate, task.endDate, task.done])
+            .then((result) => {
+                reply.status(StatusCodes.CREATED).send({
+                    message: "Task created",
+                    task: (result[0] as Task[])[0],
+                })
+                return
+            })
+    }
+    catch (error) {
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+    }
 }
