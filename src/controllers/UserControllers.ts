@@ -10,11 +10,8 @@ export async function get_all_users(request: FastifyRequest, reply: FastifyReply
 
         await db.query("SELECT name, email, password, isAdmin FROM users")
             .then((result) => {
-                if (result[0])
-                    reply.status(StatusCodes.OK).send(result[0] as User[])
-
-                reply.status(StatusCodes.OK).send(result[0] as User[])
-                return
+                const users = result[0] as User[]
+                reply.status(StatusCodes.OK).send(users as User[])
             })
     }
     catch (error) {
@@ -138,11 +135,11 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
         const params = request.params as { id: number }
 
         // get user
-        let user: UserWithId = {} as UserWithId;
-        await db.query("SELECT id, name, email, password, isAdmin FROM users WHERE id = ?", [params.id])
+        let user: User = {} as User;
+        await db.query("SELECT name, email, password, isAdmin FROM users WHERE id = ?", [params.id])
             .then((result) => {
-                const users = result[0] as UserWithId[]
-                user = users[0] as UserWithId
+                const users = result[0] as User[]
+                user = users[0] as User
 
                 // assign data
                 user.name = newInfo.name ?? user.name
