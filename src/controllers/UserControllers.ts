@@ -36,7 +36,7 @@ export async function get_user_by_id(request: FastifyRequest, reply: FastifyRepl
     }
 }
 
-export async function create_user(request: FastifyRequest, reply: FastifyReply) {
+export async function post_user(request: FastifyRequest, reply: FastifyReply) {
     try {
         const db = await Database.get()
 
@@ -47,7 +47,7 @@ export async function create_user(request: FastifyRequest, reply: FastifyReply) 
         await db.query("SELECT email FROM users WHERE email = ?", [user.email])
             .then((result) => {
                 const users = result[0] as User[]
-                if (users.length > 1) {
+                if (users.length > 0) {
                     reply.status(StatusCodes.CONFLICT).send({
                         message: "User already exists"
                     })
