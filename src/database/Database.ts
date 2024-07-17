@@ -33,7 +33,6 @@ export default class Database {
         const db = await this.get();
 
         await db.query(sql).then(() => {
-            console.log("Database reset");
         }).catch((err) => {
             console.error("Error reseting database");
             console.error(err);

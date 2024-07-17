@@ -152,7 +152,7 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
                 return
             })
 
-        // else update
+        // update user
         await db.query("UPDATE users SET name = ?, email = ?, password = ?, isAdmin = ? WHERE id = ?", [user.name, user.email, user.password, user.isAdmin, params.id])
             .then((result) => {
                 reply.status(StatusCodes.OK).send({

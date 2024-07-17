@@ -1,14 +1,14 @@
 import { FastifyInstance, HookHandlerDoneFunction } from "fastify"
 import { get_all_users, get_user_by_id, post_user, login_user, put_user, patch_user, delete_user } from "../controllers/UserControllers"
-import { AdminAuth, UserAuth } from "../middlewares/AuthMiddleware";
+import { AdminAccess, HasAuthToken } from "../middlewares/AuthMiddleware";
 
-export default function routes(fastify: FastifyInstance, options: any, done: HookHandlerDoneFunction) {
-    fastify.get("/users", { preHandler: AdminAuth }, get_all_users);
-    fastify.get("/users/:id", { preHandler: AdminAuth }, get_user_by_id);
-    fastify.post("/users", post_user);
-    fastify.post("/login", login_user);
-    fastify.put("/users/:id", { preHandler: AdminAuth }, put_user);
-    fastify.patch("/users/:id", { preHandler: UserAuth }, patch_user);
-    fastify.delete("/users/:id", { preHandler: AdminAuth }, delete_user);
+export default function routes(instance: FastifyInstance, options: any, done: HookHandlerDoneFunction) {
+    instance.get("/users", { preHandler: AdminAccess }, get_all_users);
+    instance.get("/users/:id", { preHandler: AdminAccess }, get_user_by_id);
+    instance.post("/users", post_user);
+    instance.post("/login", login_user);
+    instance.put("/users/:id", { preHandler: AdminAccess }, put_user);
+    instance.patch("/users/:id", { preHandler: HasAuthToken }, patch_user);
+    instance.delete("/users/:id", { preHandler: AdminAccess }, delete_user);
     done();
 }
