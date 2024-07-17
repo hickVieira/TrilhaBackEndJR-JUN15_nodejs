@@ -9,7 +9,7 @@ import { TaskWithOwnerId } from "../src/models/TaskModels";
 describe("Task routes tests", () => {
 
     let request: supertest.Agent;
-
+    
     beforeEach(async () => {
         await test_utils.resetDabase()
         request = await test_utils.get_connection();
@@ -97,5 +97,105 @@ describe("Task routes tests", () => {
         expect(response.status).toBe(StatusCodes.CREATED)
         expect(response.body).toHaveProperty("message")
         expect(response.body.message).toBe("Task created successfully")
+    })
+
+    it("should fail to create a task", async () => {
+        const response = await request.post("/tasks/user/1")
+            .send({
+                name: "task name",
+                description: "task description",
+                priority: 1,
+                points: 1,
+                startDate: new Date(),
+                endDate: new Date(),
+                done: false
+            })
+        expect(response.status).toBe(StatusCodes.UNAUTHORIZED)
+    })
+
+    it("should put a task as a admin", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
+        const response = await request.put("/tasks/1")
+            .send({
+                owner_id: 2,
+                name: "task name",
+                description: "task description",
+                priority: 1,
+                points: 1,
+                startDate: new Date(),
+                endDate: new Date(),
+                done: false
+            })
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.OK)
+        expect(response.body).toHaveProperty("message")
+        expect(response.body.message).toBe("Task updated successfully")
+    })
+
+    it("should fail to put a task as a non-admin", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "jane@example.com", "qwerty123")
+        const response = await request.put("/tasks/1")
+            .send({
+                owner_id: 2,
+                name: "task name",
+                description: "task description",
+                priority: 1,
+                points: 1,
+                startDate: new Date(),
+                endDate: new Date(),
+                done: false
+            })
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.FORBIDDEN)
+    })
+
+    it("should patch a task as a user", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
+        const response = await request.patch("/tasks/1")
+            .send({
+                name: "new task name",
+                description: "new task description",
+                priority: 1,
+                points: 1,
+                startDate: new Date(),
+                endDate: new Date(),
+                done: false
+            })
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.OK)
+        expect(response.body).toHaveProperty("message")
+        expect(response.body.message).toBe("Task updated successfully")
+    })
+
+    it("should fail to patch a task not belonging to the user", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "jane@example.com", "qwerty123")
+        const response = await request.patch("/tasks/1")
+            .send({
+                name: "new task name",
+                description: "new task description",
+                priority: 1,
+                points: 1,
+                startDate: new Date(),
+                endDate: new Date(),
+                done: false
+            })
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.FORBIDDEN)
+    })
+
+    it("should delete a task as a admin", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
+        const response = await request.delete("/tasks/2")
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.OK)
+        expect(response.body).toHaveProperty("message")
+        expect(response.body.message).toBe("Task deleted successfully")
+    })
+
+    it("should fail to delete a task not belonging to the user", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "jane@example.com", "qwerty123")
+        const response = await request.delete("/tasks/1")
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.FORBIDDEN)
     })
 })

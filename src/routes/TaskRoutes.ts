@@ -1,11 +1,14 @@
-import { FastifyInstance, HookHandlerDoneFunction } from "fastify"
-import { get_all_tasks, get_task_by_id, get_all_tasks_by_user_id, create_task } from "../controllers/TaskControllers"
-import { AdminAuth, UserAuth } from "../middlewares/AuthMiddleware";
+import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify"
+import { get_all_tasks, get_task_by_id, get_all_tasks_by_user_id, post_task, put_task, patch_task, delete_task } from "../controllers/TaskControllers"
+import { AdminAccess, HasAuthToken, UserAccessTask } from "../middlewares/AuthMiddleware";
 
-export default function routes(fastify: FastifyInstance, options: any, done: HookHandlerDoneFunction) {
-    fastify.get("/tasks", { preHandler: AdminAuth }, get_all_tasks);
-    fastify.get("/tasks/:id", { preHandler: AdminAuth }, get_task_by_id);
-    fastify.get("/tasks/user/:id", { preHandler: UserAuth }, get_all_tasks_by_user_id);
-    fastify.post("/tasks/user/:id", { preHandler: UserAuth }, create_task);
+export default function routes(instance: FastifyInstance, options: any, done: HookHandlerDoneFunction) {
+    instance.get("/tasks", { preHandler: AdminAccess }, get_all_tasks);
+    instance.get("/tasks/:id", { preHandler: AdminAccess }, get_task_by_id);
+    instance.get("/tasks/user/:id", { preHandler: HasAuthToken }, get_all_tasks_by_user_id);
+    instance.post("/tasks/user/:id", { preHandler: HasAuthToken }, post_task);
+    instance.put("/tasks/:id", { preHandler: AdminAccess }, put_task);
+    instance.patch("/tasks/:id", { preHandler: UserAccessTask }, patch_task);
+    instance.delete("/tasks/:id", { preHandler: UserAccessTask }, delete_task);
     done();
 }
