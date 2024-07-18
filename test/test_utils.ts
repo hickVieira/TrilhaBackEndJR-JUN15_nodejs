@@ -8,12 +8,12 @@ export default class test_utils {
 
     public static async get_connection(): Promise<supertest.Agent> {
         dotenv.config()
-        return supertest(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+        return supertest(`localhost:${process.env.APP_PORT}`)
     }
 
     public static async resetDabase() {
         dotenv.config()
-        await Database.reset()
+        await Database.reset(await Database.get_external())
     }
 
     public static async login_user(request: supertest.Agent, email: string, password: string): Promise<[any, string]> {
@@ -27,7 +27,7 @@ export default class test_utils {
 
         let jwt = utils.verify_token(userToken, process.env.JWT_SECRET)
         expect(jwt).toBeDefined()
-        
+
         jwt = jwt as njwt.Jwt
 
         const payload = jwt.body.toJSON() as any

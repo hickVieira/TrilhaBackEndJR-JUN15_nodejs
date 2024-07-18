@@ -6,7 +6,7 @@ import utils from "../utils"
 
 export async function get_all_users(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         await db.query("SELECT name, email, password, isAdmin FROM users")
             .then((result) => {
@@ -24,7 +24,7 @@ export async function get_all_users(request: FastifyRequest, reply: FastifyReply
 
 export async function get_user_by_id(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         const params = request.params as { id: number }
 
@@ -43,7 +43,7 @@ export async function get_user_by_id(request: FastifyRequest, reply: FastifyRepl
 
 export async function register_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         // get user
         const user = request.body as User
@@ -96,7 +96,7 @@ export async function register_user(request: FastifyRequest, reply: FastifyReply
 
 export async function login_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         // get user
         const loginData = request.body as { email: string, password: string }
@@ -140,7 +140,7 @@ export async function login_user(request: FastifyRequest, reply: FastifyReply) {
 
 export async function put_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         const newInfo = request.body as { name: string, email: string, password: string, isAdmin: boolean }
 
@@ -202,7 +202,7 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
 
 export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         const newInfo = request.body as { name: string, email: string, password: string }
 
@@ -265,7 +265,7 @@ export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
 
 export async function delete_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         const params = request.params as { id: number }
 

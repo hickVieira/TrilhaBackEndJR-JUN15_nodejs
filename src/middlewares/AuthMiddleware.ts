@@ -49,7 +49,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
     }
 
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         const params = request.params as { id: number }
 
@@ -86,7 +86,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
         // check if user is admin
         let isAdmin: boolean = false;
         try {
-            const db = await Database.get()
+            const db = await Database.get_internal()
 
             // check if is admin
             await db.query("SELECT isAdmin FROM users WHERE id = ?", [payload.id])
@@ -147,7 +147,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
     }
 
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         const params = request.params as { id: number }
 
@@ -184,7 +184,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
         // check if user is admin
         let isAdmin: boolean = false;
         try {
-            const db = await Database.get()
+            const db = await Database.get_internal()
 
             // check if is admin
             await db.query("SELECT isAdmin FROM users WHERE id = ?", [payload.id])
@@ -249,7 +249,7 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
     // check if user is admin
     let isAdmin: boolean = false;
     try {
-        const db = await Database.get()
+        const db = await Database.get_internal()
 
         // check if is admin
         await db.query("SELECT isAdmin FROM users WHERE id = ?", [payload.id])

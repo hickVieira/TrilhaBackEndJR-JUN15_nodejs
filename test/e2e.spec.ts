@@ -3,7 +3,7 @@ import test_utils from "./test_utils"
 import { StatusCodes } from "http-status-codes"
 import utils from "../src/utils";
 
-describe("E2E tests", () => {
+describe("E2E test that creates a user, logins a user, creates a task as a logged user, and deletes the task", () => {
 
     let request: supertest.Agent;
 

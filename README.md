@@ -10,7 +10,11 @@
 3. Adminer access on [localhost:8080](http://localhost:8080)
    - username: root
    - password: admin
-4. Stop container/services
+4. Run tests
+   ```bash
+   npm run test
+   ```
+5. Stop container/services
    ```bash
    sudo docker compose down -v
    ```
@@ -29,17 +33,19 @@
 - [x] database reset util
 - [ ] password encryption
 - [x] tests
-- [ ] user routes
+   - [x] user routes
+   - [x] task routes
+   - [x] e2e 
+- [x] user routes
    - [x] get users
    - [x] get user by id
-   - [ ] get user by email
    - [x] post user
    - [x] put user
    - [x] patch user
    - [x] delete user
    - [x] tokens
    - [x] auth
-- [ ] task routes
+- [x] task routes
    - [x] get tasks
    - [x] get tasks by user
    - [x] get task by id
