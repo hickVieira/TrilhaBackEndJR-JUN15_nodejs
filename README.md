@@ -13,6 +13,7 @@
 4. Stop container/services
    ```bash
    sudo docker compose down -v
+   ```
 
 ### Techstack
 - NodeJS
@@ -36,7 +37,6 @@
    - [x] put user
    - [x] patch user
    - [x] delete user
-
    - [x] tokens
    - [x] auth
 - [ ] task routes
