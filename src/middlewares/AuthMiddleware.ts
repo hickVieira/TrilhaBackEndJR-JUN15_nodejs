@@ -59,12 +59,14 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
         await db.query("SELECT id FROM users WHERE id = ?", [params.id])
             .then((result) => {
                 const users = result[0] as UserWithId[]
-                if (users.length === 0) {
-                    reply.status(StatusCodes.NOT_FOUND).send({
-                        message: "User not found"
-                    })
-                    return
-                }
+                if (users.length === 0)
+                    throw new Error("User not found")
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.NOT_FOUND).send({
+                    message: "User not found"
+                })
+                console.error(error)
             })
 
         // get user
@@ -78,7 +80,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
                 reply.status(StatusCodes.NOT_FOUND).send({
                     message: "User not found"
                 })
-                return
+                console.error(error)
             })
 
         // check if user is admin
@@ -93,12 +95,18 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
                     if (bools.length > 0)
                         isAdmin = bools[0].isAdmin == 1 ? true : false
                 })
+                .catch((error) => {
+                    reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                        message: "Internal server error"
+                    })
+                    console.error(error)
+                })
         }
         catch (error) {
             reply.status(StatusCodes.FORBIDDEN).send({
                 message: "User does not have permission"
             })
-            return
+            console.error(error)
         }
 
         // check if user is owner
@@ -114,6 +122,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
         reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
             message: "Internal server error"
         })
+        console.error(error)
     }
 }
 
@@ -139,7 +148,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
 
     try {
         const db = await Database.get()
-        
+
         const params = request.params as { id: number }
 
         const payload = jwt.body.toJSON() as any
@@ -148,12 +157,14 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
         await db.query("SELECT id FROM tasks WHERE id = ?", [params.id])
             .then((result) => {
                 const tasks = result[0] as TaskWithId[]
-                if (tasks.length === 0) {
-                    reply.status(StatusCodes.NOT_FOUND).send({
-                        message: "Task not found"
-                    })
-                    return
-                }
+                if (tasks.length === 0)
+                    throw new Error("Task not found")
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.NOT_FOUND).send({
+                    message: "Task not found"
+                })
+                console.error(error)
             })
 
         // get task
@@ -167,7 +178,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
                 reply.status(StatusCodes.NOT_FOUND).send({
                     message: "Task not found"
                 })
-                return
+                console.error(error)
             })
 
         // check if user is admin
@@ -181,6 +192,12 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
                     const bools = result[0] as any
                     if (bools.length > 0)
                         isAdmin = bools[0].isAdmin == 1 ? true : false
+                })
+                .catch((error) => {
+                    reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                        message: "Internal server error"
+                    })
+                    console.error(error)
                 })
         }
         catch (error) {
@@ -203,6 +220,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
         reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
             message: "Internal server error"
         })
+        console.error(error)
     }
 }
 
@@ -240,11 +258,18 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
                 if (bools.length > 0)
                     isAdmin = bools[0].isAdmin == 1 ? true : false
             })
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Internal server error"
+                })
+                console.error(error)
+            })
     }
     catch (error) {
         reply.status(StatusCodes.FORBIDDEN).send({
             message: "User does not have permission"
         })
+        console.error(error)
         return
     }
 

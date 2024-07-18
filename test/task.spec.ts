@@ -1,15 +1,17 @@
 import supertest from "supertest"
 import test_utils from "./test_utils"
 import { StatusCodes } from "http-status-codes"
-import { TaskWithOwnerId } from "../src/models/TaskModels";
 
 describe("Task routes tests", () => {
 
     let request: supertest.Agent;
 
+    beforeAll(async () => {
+        request = await test_utils.get_connection();
+    })
+
     beforeEach(async () => {
         await test_utils.resetDabase()
-        request = await test_utils.get_connection();
     })
 
     it("should get all tasks as a admin", async () => {
@@ -18,17 +20,16 @@ describe("Task routes tests", () => {
             .set("Authorization", `Bearer ${userToken}`)
         expect(response.status).toBe(StatusCodes.OK)
 
-        const tasks = response.body as TaskWithOwnerId[]
-        expect(tasks).toBeDefined()
-        expect(tasks.length).toBeGreaterThan(0)
-        expect(tasks[0]).toHaveProperty("owner_id")
-        expect(tasks[0]).toHaveProperty("name")
-        expect(tasks[0]).toHaveProperty("description")
-        expect(tasks[0]).toHaveProperty("priority")
-        expect(tasks[0]).toHaveProperty("points")
-        expect(tasks[0]).toHaveProperty("startDate")
-        expect(tasks[0]).toHaveProperty("endDate")
-        expect(tasks[0]).toHaveProperty("done")
+        expect(response.body).toBeDefined()
+        expect(response.body.length).toBeGreaterThan(0)
+        expect(response.body[0]).toHaveProperty("owner_id")
+        expect(response.body[0]).toHaveProperty("name")
+        expect(response.body[0]).toHaveProperty("description")
+        expect(response.body[0]).toHaveProperty("priority")
+        expect(response.body[0]).toHaveProperty("points")
+        expect(response.body[0]).toHaveProperty("startDate")
+        expect(response.body[0]).toHaveProperty("endDate")
+        expect(response.body[0]).toHaveProperty("done")
     })
 
     it("should fail to get all tasks as a non-admin", async () => {

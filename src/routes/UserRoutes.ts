@@ -1,5 +1,5 @@
 import { FastifyInstance, HookHandlerDoneFunction } from "fastify"
-import { get_all_users, get_user_by_id, post_user as register_user, login_user, put_user, patch_user, delete_user } from "../controllers/UserControllers"
+import { get_all_users, get_user_by_id, register_user as register_user, login_user, put_user, patch_user, delete_user } from "../controllers/UserControllers"
 import { AdminAccess, UserAccess, UserAccessUser } from "../middlewares/AuthMiddleware";
 
 export default function routes(instance: FastifyInstance, options: any, done: HookHandlerDoneFunction) {

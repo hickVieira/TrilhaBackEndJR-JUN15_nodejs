@@ -18,4 +18,10 @@ export default class utils {
         // return date.toISOString().split('T')[0] as string;
         // return date.toISOString().slice(0, 19).replace('T', ' ');
     }
+
+    public static extract_token_payload(token: string): njwt.Jwt | undefined {
+        const jwt = this.verify_token(token, process.env.JWT_SECRET);
+        const payload = jwt?.body.toJSON() as any
+        return payload
+    }
 }

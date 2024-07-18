@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from "fastify"
+import fastify, { FastifyRequest, FastifyReply } from "fastify"
 import { Task, TaskWithOwnerId } from "../models/TaskModels"
 import Database from "../database/Database"
 import { StatusCodes } from "http-status-codes"
@@ -13,11 +13,13 @@ export async function get_all_tasks(request: FastifyRequest, reply: FastifyReply
             .then((result) => {
                 const tasks = result[0] as TaskWithOwnerId[]
                 reply.status(StatusCodes.OK).send(tasks as TaskWithOwnerId[])
-                return
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to get tasks"
+        })
+        console.error(error)
     }
 }
 
@@ -31,11 +33,13 @@ export async function get_task_by_id(request: FastifyRequest, reply: FastifyRepl
             .then((result) => {
                 const tasks = result[0] as TaskWithOwnerId[]
                 reply.status(StatusCodes.OK).send(tasks[0] as TaskWithOwnerId)
-                return
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Task not found"
+        })
+        console.error(error)
     }
 }
 
@@ -49,11 +53,13 @@ export async function get_all_tasks_by_user_id(request: FastifyRequest, reply: F
             .then((result) => {
                 const tasks = result[0] as TaskWithOwnerId[]
                 reply.status(StatusCodes.OK).send(tasks as TaskWithOwnerId[])
-                return
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to get tasks"
+        })
+        console.error(error)
     }
 }
 
@@ -69,11 +75,19 @@ export async function post_task(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.CREATED).send({
                     message: "Task created successfully",
                 })
-                return
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to create task"
+                })
+                console.error(error)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to create task"
+        })
+        console.error(error)
     }
 }
 
@@ -95,7 +109,7 @@ export async function put_task(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.NOT_FOUND).send({
                     message: "Task not found"
                 })
-                return
+                console.error(error)
             })
 
         // assign data
@@ -115,12 +129,19 @@ export async function put_task(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.OK).send({
                     message: "Task updated successfully",
                 })
-                return
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to update task"
+                })
+                console.error(error)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
-        console.log(error)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to update task"
+        })
+        console.error(error)
     }
 }
 
@@ -142,7 +163,7 @@ export async function patch_task(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.NOT_FOUND).send({
                     message: "Task not found"
                 })
-                return
+                console.error(error)
             })
 
         // assign data
@@ -161,11 +182,19 @@ export async function patch_task(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.OK).send({
                     message: "Task updated successfully",
                 })
-                return
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to update task"
+                })
+                console.error(error)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to update task"
+        })
+        console.error(error)
     }
 }
 
@@ -180,10 +209,18 @@ export async function delete_task(request: FastifyRequest, reply: FastifyReply) 
                 reply.status(StatusCodes.OK).send({
                     message: "Task deleted successfully",
                 })
-                return
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to delete task"
+                })
+                console.error(error)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to delete task"
+        })
+        console.error(error)
     }
 }

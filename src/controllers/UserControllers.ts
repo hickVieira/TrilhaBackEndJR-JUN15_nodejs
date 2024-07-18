@@ -15,7 +15,10 @@ export async function get_all_users(request: FastifyRequest, reply: FastifyReply
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Internal server error"
+        })
+        console.error(error)
     }
 }
 
@@ -28,15 +31,17 @@ export async function get_user_by_id(request: FastifyRequest, reply: FastifyRepl
         await db.query("SELECT name, email, password, isAdmin FROM users WHERE id = ?", [params.id])
             .then((result) => {
                 reply.status(StatusCodes.OK).send((result[0] as User[])[0])
-                return
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Internal server error"
+        })
+        console.error(error)
     }
 }
 
-export async function post_user(request: FastifyRequest, reply: FastifyReply) {
+export async function register_user(request: FastifyRequest, reply: FastifyReply) {
     try {
         const db = await Database.get()
 
@@ -47,26 +52,45 @@ export async function post_user(request: FastifyRequest, reply: FastifyReply) {
         await db.query("SELECT email FROM users WHERE email = ?", [user.email])
             .then((result) => {
                 const users = result[0] as User[]
-                if (users.length > 0) {
-                    reply.status(StatusCodes.CONFLICT).send({
-                        message: "User already exists"
-                    })
-                    return;
-                }
+                if (users.length > 0)
+                    throw new Error("User already exists")
+            }).catch((error) => {
+                reply.status(StatusCodes.CONFLICT).send({
+                    message: "User already exists"
+                })
+                console.error(error)
             })
 
         // else insert
 
-        await db.query("INSERT INTO users (name, email, password, isAdmin) VALUES (?, ?, ?, ?)", [user.name, user.email, user.password, user.isAdmin])
+        await db.query("INSERT INTO users (name, email, password, isAdmin) VALUES (?, ?, ?, ?)", [user.name, user.email, user.password, false])
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to create user"
+                })
+                console.error(error)
+            })
+
+        // get user
+        await db.query("SELECT id, name, email, password, isAdmin FROM users WHERE email = ?", [user.email])
             .then((result) => {
+                const users = result[0] as UserWithId[]
+                const user = users[0] as UserWithId
+
+                // create token
+                const token = utils.create_token({ id: user.id, name: user.name, email: user.email }, process.env.JWT_SECRET, 4)
+
                 reply.status(StatusCodes.CREATED).send({
                     message: "User created successfully",
+                    token: token.compact(),
                 })
-                return
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to create user"
+        })
+        console.error(error)
     }
 }
 
@@ -81,35 +105,36 @@ export async function login_user(request: FastifyRequest, reply: FastifyReply) {
         await db.query("SELECT id, name, email, password, isAdmin FROM users WHERE email = ?", [loginData.email])
             .then((result) => {
                 const users = result[0] as UserWithId[]
-                if (users.length > 1) {
-                    reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                        message: "Critical error: Multiple users found with same email... contact support"
-                    })
-                    return;
-                }
+                if (users.length > 1)
+                    throw new Error("User already exists")
 
                 // get user
                 const user = users[0] as UserWithId
 
                 // check password
-                if (user.password != loginData.password) {
-                    reply.status(StatusCodes.UNAUTHORIZED).send({
-                        message: "Wrong password"
-                    })
-                    return;
-                }
+                if (user.password != loginData.password)
+                    throw new Error("Wrong password")
 
                 // create token
                 const token = utils.create_token({ id: user.id, name: user.name, email: user.email }, process.env.JWT_SECRET, 4)
 
                 reply.status(StatusCodes.OK).send({
-                    message: "Successful login",
+                    message: "User logged in successfully",
                     token: token.compact(),
                 })
             })
+            .catch((error) => {
+                reply.status(StatusCodes.UNAUTHORIZED).send({
+                    message: "User does not exist"
+                })
+                console.error(error)
+            })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to login user"
+        })
+        console.error(error)
     }
 }
 
@@ -123,12 +148,14 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
         await db.query("SELECT email FROM users WHERE email = ?", [newInfo.email])
             .then((result) => {
                 const users = result[0] as User[]
-                if (users.length > 1) {
-                    reply.status(StatusCodes.CONFLICT).send({
-                        message: "Email already exists in database"
-                    })
-                    return;
-                }
+                if (users.length > 1)
+                    throw new Error("User already exists")
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.CONFLICT).send({
+                    message: "User already exists"
+                })
+                console.error(error)
             })
 
         const params = request.params as { id: number }
@@ -149,7 +176,6 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.NOT_FOUND).send({
                     message: "User not found"
                 })
-                return
             })
 
         // update user
@@ -158,11 +184,18 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.OK).send({
                     message: "User updated"
                 })
-                return
+            }).catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to update user"
+                })
+                console.error(error)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to update user"
+        })
+        console.error(error)
     }
 }
 
@@ -177,12 +210,14 @@ export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
         await db.query("SELECT email FROM users WHERE email = ?", [newInfo.email])
             .then((result) => {
                 const users = result[0] as User[]
-                if (users.length > 1) {
-                    reply.status(StatusCodes.CONFLICT).send({
-                        message: "Email already exists in database"
-                    })
-                    return;
-                }
+                if (users.length > 1)
+                    throw new Error("User already exists")
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.CONFLICT).send({
+                    message: "User already exists"
+                })
+                console.error(error)
             })
 
         const params = request.params as { id: number }
@@ -203,7 +238,7 @@ export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.NOT_FOUND).send({
                     message: "User not found"
                 })
-                return
+                console.error(error)
             })
 
         // else update
@@ -212,11 +247,19 @@ export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
                 reply.status(StatusCodes.OK).send({
                     message: "User updated"
                 })
-                return
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to update user"
+                })
+                console.error(error)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to update user"
+        })
+        console.error(error)
     }
 }
 
@@ -231,10 +274,18 @@ export async function delete_user(request: FastifyRequest, reply: FastifyReply) 
                 reply.status(StatusCodes.OK).send({
                     message: "User deleted"
                 })
-                return
+            })
+            .catch((error) => {
+                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                    message: "Failed to delete user"
+                })
+                console.error(error)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR)
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Failed to delete user"
+        })
+        console.error(error)
     }
 }

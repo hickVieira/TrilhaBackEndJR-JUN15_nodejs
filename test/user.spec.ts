@@ -6,9 +6,12 @@ describe("User routes tests", () => {
 
     let request: supertest.Agent;
 
+    beforeAll(async () => {
+        request = await test_utils.get_connection();
+    })
+
     beforeEach(async () => {
         await test_utils.resetDabase()
-        request = await test_utils.get_connection();
     })
 
     it("should get all users as admin", async () => {
@@ -48,19 +51,18 @@ describe("User routes tests", () => {
             name: "testName",
             email: "test@email.com",
             password: "test123Abc",
-            isAdmin: false
         })
         expect(response.status).toBe(StatusCodes.CREATED)
         expect(response.body).toHaveProperty("message")
         expect(response.body.message).toBe("User created successfully")
+        expect(response.body).toHaveProperty("token")
     })
 
-    it("should fail to post a user that already exists", async () => {
+    it("should fail to register a user that already exists", async () => {
         const response = await request.post("/register").send({
             name: "testName",
             email: "john@example.com",
             password: "test123Abc",
-            isAdmin: false
         })
         expect(response.status).toBe(StatusCodes.CONFLICT)
     })
@@ -72,6 +74,7 @@ describe("User routes tests", () => {
         })
         expect(response.status).toBe(StatusCodes.OK)
         expect(response.body).toHaveProperty("message")
+        expect(response.body.message).toBe("User logged in successfully")
         expect(response.body).toHaveProperty("token")
     })
 
