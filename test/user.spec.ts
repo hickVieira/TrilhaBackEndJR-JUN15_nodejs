@@ -1,8 +1,4 @@
 import supertest from "supertest"
-import { User, UserWithId } from "../src/models/UserModels"
-import Database from "../src/database/Database"
-import utils from "../src/utils"
-import njwt from 'njwt';
 import test_utils from "./test_utils"
 import { StatusCodes } from "http-status-codes"
 
@@ -47,8 +43,8 @@ describe("User routes tests", () => {
         expect(response.status).toBe(StatusCodes.UNAUTHORIZED)
     })
 
-    it("should create a user", async () => {
-        const response = await request.post("/users").send({
+    it("should register a user", async () => {
+        const response = await request.post("/register").send({
             name: "testName",
             email: "test@email.com",
             password: "test123Abc",
@@ -57,6 +53,16 @@ describe("User routes tests", () => {
         expect(response.status).toBe(StatusCodes.CREATED)
         expect(response.body).toHaveProperty("message")
         expect(response.body.message).toBe("User created successfully")
+    })
+
+    it("should fail to post a user that already exists", async () => {
+        const response = await request.post("/register").send({
+            name: "testName",
+            email: "john@example.com",
+            password: "test123Abc",
+            isAdmin: false
+        })
+        expect(response.status).toBe(StatusCodes.CONFLICT)
     })
 
     it("should login a user", async () => {
@@ -69,7 +75,7 @@ describe("User routes tests", () => {
         expect(response.body).toHaveProperty("token")
     })
 
-    it("should update/put a user as admin", async () => {
+    it("should put a user as a admin", async () => {
         const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
 
         const response1 = await request.put(`/users/${payload.id}`)
@@ -90,10 +96,20 @@ describe("User routes tests", () => {
         expect(response2.body).toHaveProperty("email", "john-new-email@example.com")
         expect(response2.body).toHaveProperty("password", "password123-new-password")
         expect(response2.body).toHaveProperty("isAdmin", 1)
-
     })
 
-    it("should update/patch a user as a user", async () => {
+    it("should fail to put a user as a non-admin", async () => {
+        const response = await request.put("/users/1")
+            .send({
+                name: "John Doe New Name",
+                email: "john-new-email@example.com",
+                password: "password123-new-password",
+                isAdmin: true
+            })
+        expect(response.status).toBe(StatusCodes.UNAUTHORIZED)
+    })
+
+    it("should patch a user as a logged user", async () => {
         const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
 
         const response1 = await request.patch(`/users/${payload.id}`)
@@ -115,6 +131,18 @@ describe("User routes tests", () => {
         expect(response2.body).toHaveProperty("isAdmin", 1)
     })
 
+    it("should fail to patch a user that is not the logged in user", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "jane@example.com", "qwerty123")
+        const response = await request.patch("/users/1")
+            .send({
+                name: "John Doe New Name",
+                email: "john-new-email@example.com",
+                password: "password123-new-password"
+            })
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.FORBIDDEN)
+    })
+
     it("should delete a user as admin", async () => {
         const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
 
@@ -122,5 +150,17 @@ describe("User routes tests", () => {
             .set("Authorization", `Bearer ${userToken}`)
 
         expect(response.status).toBe(StatusCodes.OK)
+    })
+
+    it("should fail to delete a user as a non-user", async () => {
+        const response = await request.delete("/users/1")
+        expect(response.status).toBe(StatusCodes.UNAUTHORIZED)
+    })
+
+    it("should fail to delete a user as non-admin", async () => {
+        const [payload, userToken] = await test_utils.login_user(request, "jane@example.com", "qwerty123")
+        const response = await request.delete("/users/1")
+            .set("Authorization", `Bearer ${userToken}`)
+        expect(response.status).toBe(StatusCodes.FORBIDDEN)
     })
 })
