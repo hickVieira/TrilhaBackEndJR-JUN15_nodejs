@@ -5,7 +5,7 @@ import { User } from "../models/UserModels"
 import { Task, TaskWithId, TaskWithOwnerId } from "../models/TaskModels"
 import { StatusCodes } from "http-status-codes"
 
-export async function HasAuthToken(request: FastifyRequest, reply: FastifyReply) {
+export async function UserAccess(request: FastifyRequest, reply: FastifyReply) {
     const { authorization } = request.headers
 
     if (!authorization) {
