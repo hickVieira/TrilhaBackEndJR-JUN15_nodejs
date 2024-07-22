@@ -1,7 +1,6 @@
 ## App de Tarefas
 
 ### Running
-
 1. Start by running containers/services
    ```bash
    sudo docker compose up --build
@@ -18,6 +17,25 @@
    ```bash
    sudo docker compose down -v
    ```
+
+## Endpoints
+- users
+   - get "/users"
+   - get "/users/:id"
+   - post "/register"
+   - post "/login"
+   - put "/users/:id"
+   - patch "/users/:id"
+   - delete "/users/:id"
+- tasks
+   - get "/tasks"
+   - get "/tasks/:id"
+   - get "/tasks/user/:id"
+   - post "/tasks/user/:id"
+   - put "/tasks/:id"
+   - patch "/tasks/:id"
+   - delete "/tasks/:id"
+
 
 ### Techstack
 - NodeJS
