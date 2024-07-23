@@ -9,7 +9,7 @@ export async function UserAccess(request: FastifyRequest, reply: FastifyReply) {
     const { authorization } = request.headers
 
     if (!authorization) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -17,7 +17,7 @@ export async function UserAccess(request: FastifyRequest, reply: FastifyReply) {
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -28,7 +28,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
     const { authorization } = request.headers
 
     if (!authorization) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -36,7 +36,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -64,7 +64,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
                 })
         }
         catch (error) {
-            utils.reply_error(reply, StatusCodes.NOT_FOUND, "User not found", error)
+            utils.reply_error_old(reply, StatusCodes.NOT_FOUND, "User not found", error)
             return
         }
 
@@ -83,19 +83,19 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
                 })
         }
         catch (error) {
-            utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+            utils.reply_error_old(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
             return
         }
 
         // check if user is owner
         if (!isAdmin)
             if (Number(payload.id) !== Number(user.id)) {
-                utils.reply_error(reply, StatusCodes.FORBIDDEN, "User does not have permission")
+                utils.reply_error_old(reply, StatusCodes.FORBIDDEN, "User does not have permission")
                 return;
             }
     }
     catch (error) {
-        utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+        utils.reply_error_old(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
         return
     }
 }
@@ -104,7 +104,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
     const { authorization } = request.headers
 
     if (!authorization) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -112,7 +112,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -140,7 +140,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
                 })
         }
         catch (error) {
-            utils.reply_error(reply, StatusCodes.NOT_FOUND, "Task not found", error)
+            utils.reply_error_old(reply, StatusCodes.NOT_FOUND, "Task not found", error)
             return
         }
 
@@ -158,19 +158,19 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
                 })
         }
         catch (error) {
-            utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+            utils.reply_error_old(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
             return
         }
 
         // check if user is owner
         if (!isAdmin)
             if (Number(payload.id) !== Number(task.ownerId)) {
-                utils.reply_error(reply, StatusCodes.FORBIDDEN, "User does not have permission")
+                utils.reply_error_old(reply, StatusCodes.FORBIDDEN, "User does not have permission")
                 return;
             }
     }
     catch (error) {
-        utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+        utils.reply_error_old(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
         return
     }
 }
@@ -179,7 +179,7 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
     const { authorization } = request.headers
 
     if (!authorization) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -187,7 +187,7 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
+        utils.reply_error_old(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -210,17 +210,17 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
                 })
         }
         catch (error) {
-            utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+            utils.reply_error_old(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
             return
         }
 
         if (!isAdmin) {
-            utils.reply_error(reply, StatusCodes.FORBIDDEN, "User does not have permission")
+            utils.reply_error_old(reply, StatusCodes.FORBIDDEN, "User does not have permission")
             return
         }
     }
     catch (error) {
-        utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+        utils.reply_error_old(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
         return
     }
 }
