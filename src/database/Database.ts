@@ -1,9 +1,14 @@
 import mysql2 from 'mysql2/promise';
+import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 
 export default class Database {
     static pool: mysql2.Pool
+
+    public static get_prisma_connection() {
+        return new PrismaClient();
+    }
 
     public static async get_internal() {
         if (!this.pool)
@@ -46,12 +51,66 @@ export default class Database {
     }
 
     public static async reset(db: mysql2.Pool) {
-        let sql = fs.readFileSync(path.resolve(__dirname, "..", "dbreset.sql"), 'utf8');
-        await db.query(sql).then(() => {
-        }).catch((err) => {
-            console.error("Error reseting database");
-            console.error(err);
-            this.reset(db);
-        });
+        // old
+        {
+            let sql = fs.readFileSync(path.resolve(__dirname, "..", "dbreset.sql"), 'utf8');
+            await db.query(sql).then(() => {
+            }).catch((err) => {
+                console.error("Error reseting database");
+                console.error(err);
+                this.reset(db);
+            });
+        }
+
+        // new
+        {
+            const db = this.get_prisma_connection();
+
+            // reset db
+            await db
+                .$transaction([
+                    db.user.deleteMany(),
+                    db.task.deleteMany(),
+                ])
+                .catch((err) => {
+                    console.error("Error reseting database");
+                    console.error(err);
+                });
+
+            // add fake users
+            await db.user
+                .createMany({
+                    data: [
+                        { name: 'John Doe', email: 'john@example.com', password: 'password123', isAdmin: true },
+                        { name: 'Jane Smith', email: 'jane@example.com', password: 'qwerty123', isAdmin: false },
+                        { name: 'Fulano Siclano', email: 'fulano@example.com', password: 'brasil123', isAdmin: false },
+                        { name: 'Luizo Henrico', email: 'luizeco@example.com', password: 'abc123', isAdmin: false },
+                    ]
+                })
+                .then(() => {
+                })
+                .catch((err) => {
+                    console.error("Error reseting database");
+                    console.error(err);
+                });
+
+            // add fake tasks
+            await db.task
+                .createMany({
+                    data: [
+                        { ownerId: 1, name: 'Task 1', description: 'This is task 1', priority: 1, points: 10, startDate: '2023-01-01', endDate: '2023-02-15', done: false },
+                        { ownerId: 3, name: 'Task 2', description: 'This is task 2', priority: 2, points: 20, startDate: '2023-01-05', endDate: '2023-02-20', done: false },
+                        { ownerId: 1, name: 'Task 3', description: 'This is task 3', priority: 3, points: 30, startDate: '2023-01-10', endDate: '2023-02-25', done: false },
+                        { ownerId: 2, name: 'Task 4', description: 'This is task 4', priority: 3, points: 40, startDate: '2023-01-12', endDate: '2023-02-29', done: false },
+                        { ownerId: 1, name: 'Task 5', description: 'This is task 5', priority: 4, points: 50, startDate: '2023-01-15', endDate: '2023-02-30', done: false },
+                    ]
+                })
+                .then(() => {
+                })
+                .catch((err) => {
+                    console.error("Error reseting database");
+                    console.error(err);
+                });
+        }
     }
 }

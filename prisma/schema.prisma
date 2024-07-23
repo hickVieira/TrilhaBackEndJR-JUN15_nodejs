@@ -11,11 +11,12 @@ datasource db {
 }
 
 model User {
-  id      Int     @id @default(autoincrement())
-  email   String  @unique
-  name    String?
-  tasks   Task[]
-  isAdmin Boolean
+  id       Int     @id @default(autoincrement())
+  name     String?
+  email    String  @unique
+  password String
+  tasks    Task[]
+  isAdmin  Boolean
 }
 
 model Task {
@@ -24,7 +25,6 @@ model Task {
   ownerId     Int
   name        String
   description String?
-  published   Boolean
   priority    Int
   points      Int
   startDate   DateTime

@@ -4,3 +4,4 @@ dist
 .tap
 *.js
 **/database.db
+prisma/dev.db

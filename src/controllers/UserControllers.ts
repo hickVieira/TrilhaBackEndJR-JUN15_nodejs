@@ -6,19 +6,20 @@ import utils from "../utils"
 
 export async function get_all_users(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
-        await db.query("SELECT name, email, password, isAdmin FROM users")
+        // get all users
+        await db.user
+            .findMany()
             .then((result) => {
-                const users = result[0] as User[]
-                reply.status(StatusCodes.OK).send(users as User[])
+                reply.status(StatusCodes.OK).send(result.map((user) => { return user as User }))
+            })
+            .catch((error) => {
+                utils.emit_error(reply, error, "Failed to get all users")
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Internal server error"
-        })
-        console.error(error)
+        utils.emit_error(reply, error, "Failed to get all users")
     }
 }
 
@@ -34,10 +35,7 @@ export async function get_user_by_id(request: FastifyRequest, reply: FastifyRepl
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Internal server error"
-        })
-        console.error(error)
+        utils.emit_error(reply, error, "Failed to get user by id")
     }
 }
 
