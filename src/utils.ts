@@ -1,6 +1,6 @@
 import njwt from 'njwt';
 import { FastifyReply, errorCodes } from "fastify"
-import err from './Err';
+import Err from './Err';
 import { StatusCodes } from 'http-status-codes';
 
 export default class utils {
@@ -36,8 +36,8 @@ export default class utils {
     }
 
     public static reply_error(reply: FastifyReply, error: unknown, statusCode?: number) {
-        if (error instanceof err)
-            reply.status((error as err).errorCode).send({ errorCode: (error as err).errorCode, message: error.message })
+        if (error instanceof Err)
+            reply.status((error as Err).errorCode).send({ errorCode: (error as Err).errorCode, message: error.message })
         else
             reply.status(statusCode ? statusCode : StatusCodes.INTERNAL_SERVER_ERROR).send({ message: (error as Error).message })
         console.error(error)

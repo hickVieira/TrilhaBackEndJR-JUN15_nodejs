@@ -18,7 +18,6 @@ export async function get_all_users(request: FastifyRequest, reply: FastifyReply
     }
     catch (error) {
         utils.reply_error(reply, error)
-        return
     }
 }
 
@@ -44,7 +43,6 @@ export async function get_user_by_id(request: FastifyRequest, reply: FastifyRepl
     }
     catch (error) {
         utils.reply_error(reply, error)
-        return
     }
 }
 
@@ -100,7 +98,6 @@ export async function register_user(request: FastifyRequest, reply: FastifyReply
     }
     catch (error) {
         utils.reply_error(reply, error)
-        return
     }
 }
 
@@ -146,7 +143,6 @@ export async function login_user(request: FastifyRequest, reply: FastifyReply) {
     }
     catch (error) {
         utils.reply_error(reply, error)
-        return
     }
 }
 
@@ -216,7 +212,6 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
     }
     catch (error) {
         utils.reply_error(reply, error)
-        return
     }
 }
 
@@ -294,7 +289,6 @@ export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
     }
     catch (error) {
         utils.reply_error(reply, error)
-        return
     }
 }
 
@@ -337,6 +331,5 @@ export async function delete_user(request: FastifyRequest, reply: FastifyReply) 
     }
     catch (error) {
         utils.reply_error(reply, error)
-        return
     }
 }
