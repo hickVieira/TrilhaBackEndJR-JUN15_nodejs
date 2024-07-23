@@ -9,9 +9,7 @@ export async function UserAccess(request: FastifyRequest, reply: FastifyReply) {
     const { authorization } = request.headers
 
     if (!authorization) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -19,9 +17,7 @@ export async function UserAccess(request: FastifyRequest, reply: FastifyReply) {
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -32,9 +28,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
     const { authorization } = request.headers
 
     if (!authorization) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -42,87 +36,67 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
         const params = request.params as { id: number }
 
         const payload = jwt.body.toJSON() as any
 
-        // check if user exists
-        await db.query("SELECT id FROM users WHERE id = ?", [params.id])
-            .then((result) => {
-                const users = result[0] as UserWithId[]
-                if (users.length === 0)
-                    throw new Error("User not found")
-            })
-            .catch((error) => {
-                reply.status(StatusCodes.NOT_FOUND).send({
-                    message: "User not found"
-                })
-                console.error(error)
-            })
-
-        // get user
+        // check if target user exists
         let user: UserWithId = {} as UserWithId
-        await db.query("SELECT id FROM users WHERE id = ?", [params.id])
-            .then((result) => {
-                const users = result[0] as UserWithId[]
-                user = users[0] as UserWithId
-            })
-            .catch((error) => {
-                reply.status(StatusCodes.NOT_FOUND).send({
-                    message: "User not found"
-                })
-                console.error(error)
-            })
-
-        // check if user is admin
-        let isAdmin: boolean = false;
         try {
-            const db = await Database.get_internal()
-
-            // check if is admin
-            await db.query("SELECT isAdmin FROM users WHERE id = ?", [payload.id])
-                .then((result) => {
-                    const bools = result[0] as any
-                    if (bools.length > 0)
-                        isAdmin = bools[0].isAdmin == 1 ? true : false
+            await db.user
+                .findUnique({
+                    where: {
+                        id: Number(params.id)
+                    }
                 })
-                .catch((error) => {
-                    reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                        message: "Internal server error"
-                    })
-                    console.error(error)
+                .then((result) => {
+                    if (result == null)
+                        throw new Error("User not found")
+
+                    user = result as UserWithId
                 })
         }
         catch (error) {
-            reply.status(StatusCodes.FORBIDDEN).send({
-                message: "User does not have permission"
-            })
-            console.error(error)
+            utils.reply_error(reply, StatusCodes.NOT_FOUND, "User not found", error)
+            return
+        }
+
+        // check if modyfing user is admin
+        let isAdmin: boolean = false;
+        try {
+
+            await db.user
+                .findUniqueOrThrow({
+                    where: {
+                        id: Number(payload.id)
+                    }
+                })
+                .then((result) => {
+                    isAdmin = result.isAdmin
+                })
+        }
+        catch (error) {
+            utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+            return
         }
 
         // check if user is owner
         if (!isAdmin)
             if (Number(payload.id) !== Number(user.id)) {
-                reply.status(StatusCodes.FORBIDDEN).send({
-                    message: "User does not have permission"
-                })
+                utils.reply_error(reply, StatusCodes.FORBIDDEN, "User does not have permission")
                 return;
             }
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Internal server error"
-        })
-        console.error(error)
+        utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+        return
     }
 }
 
@@ -130,9 +104,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
     const { authorization } = request.headers
 
     if (!authorization) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -140,87 +112,66 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
         const params = request.params as { id: number }
 
         const payload = jwt.body.toJSON() as any
 
-        // check if task exists
-        await db.query("SELECT id FROM tasks WHERE id = ?", [params.id])
-            .then((result) => {
-                const tasks = result[0] as TaskWithId[]
-                if (tasks.length === 0)
-                    throw new Error("Task not found")
-            })
-            .catch((error) => {
-                reply.status(StatusCodes.NOT_FOUND).send({
-                    message: "Task not found"
-                })
-                console.error(error)
-            })
-
-        // get task
+        // check if target task exists
         let task: TaskWithOwnerId = {} as TaskWithOwnerId
-        await db.query("SELECT owner_id FROM tasks WHERE id = ?", [params.id])
-            .then((result) => {
-                const tasks = result[0] as TaskWithOwnerId[]
-                task = tasks[0] as TaskWithOwnerId
-            })
-            .catch((error) => {
-                reply.status(StatusCodes.NOT_FOUND).send({
-                    message: "Task not found"
-                })
-                console.error(error)
-            })
-
-        // check if user is admin
-        let isAdmin: boolean = false;
         try {
-            const db = await Database.get_internal()
-
-            // check if is admin
-            await db.query("SELECT isAdmin FROM users WHERE id = ?", [payload.id])
-                .then((result) => {
-                    const bools = result[0] as any
-                    if (bools.length > 0)
-                        isAdmin = bools[0].isAdmin == 1 ? true : false
+            await db.task
+                .findUnique({
+                    where: {
+                        id: Number(params.id)
+                    }
                 })
-                .catch((error) => {
-                    reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                        message: "Internal server error"
-                    })
-                    console.error(error)
+                .then((result) => {
+                    if (result == null)
+                        throw new Error("Task not found")
+
+                    task = result as TaskWithOwnerId
                 })
         }
         catch (error) {
-            reply.status(StatusCodes.FORBIDDEN).send({
-                message: "User does not have permission"
-            })
+            utils.reply_error(reply, StatusCodes.NOT_FOUND, "Task not found", error)
+            return
+        }
+
+        // check if modyfing user is admin
+        let isAdmin: boolean = false;
+        try {
+            await db.user
+                .findUniqueOrThrow({
+                    where: {
+                        id: Number(payload.id)
+                    }
+                })
+                .then((result) => {
+                    isAdmin = result.isAdmin
+                })
+        }
+        catch (error) {
+            utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
             return
         }
 
         // check if user is owner
         if (!isAdmin)
-            if (Number(payload.id) !== Number(task.owner_id)) {
-                reply.status(StatusCodes.FORBIDDEN).send({
-                    message: "User does not have permission"
-                })
+            if (Number(payload.id) !== Number(task.ownerId)) {
+                utils.reply_error(reply, StatusCodes.FORBIDDEN, "User does not have permission")
                 return;
             }
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Internal server error"
-        })
-        console.error(error)
+        utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+        return
     }
 }
 
@@ -228,9 +179,7 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
     const { authorization } = request.headers
 
     if (!authorization) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
@@ -238,45 +187,40 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
     const jwt = utils.verify_token(token, process.env.JWT_SECRET)
 
     if (!jwt) {
-        reply.status(StatusCodes.UNAUTHORIZED).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.UNAUTHORIZED, "User does not have permission")
         return;
     }
 
     const payload = jwt.body.toJSON() as any
 
-    // check if user is admin
-    let isAdmin: boolean = false;
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
-        // check if is admin
-        await db.query("SELECT isAdmin FROM users WHERE id = ?", [payload.id])
-            .then((result) => {
-                const bools = result[0] as any
-                if (bools.length > 0)
-                    isAdmin = bools[0].isAdmin == 1 ? true : false
-            })
-            .catch((error) => {
-                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                    message: "Internal server error"
+        // check if user is admin
+        let isAdmin: boolean = false;
+        try {
+            await db.user
+                .findUniqueOrThrow({
+                    where: {
+                        id: Number(payload.id)
+                    }
                 })
-                console.error(error)
-            })
+                .then((result) => {
+                    isAdmin = result.isAdmin
+                })
+        }
+        catch (error) {
+            utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
+            return
+        }
+
+        if (!isAdmin) {
+            utils.reply_error(reply, StatusCodes.FORBIDDEN, "User does not have permission")
+            return
+        }
     }
     catch (error) {
-        reply.status(StatusCodes.FORBIDDEN).send({
-            message: "User does not have permission"
-        })
-        console.error(error)
-        return
-    }
-
-    if (!isAdmin) {
-        reply.status(StatusCodes.FORBIDDEN).send({
-            message: "User does not have permission"
-        })
+        utils.reply_error(reply, StatusCodes.INTERNAL_SERVER_ERROR, "Internal server error", error)
         return
     }
 }

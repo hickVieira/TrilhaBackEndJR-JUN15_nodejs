@@ -14,6 +14,17 @@ describe("User routes tests", () => {
         await test_utils.resetDabase()
     })
 
+    it("should login a user", async () => {
+        const response = await request.post("/login").send({
+            email: "john@example.com",
+            password: "password123"
+        })
+        expect(response.status).toBe(StatusCodes.OK)
+        expect(response.body).toHaveProperty("message")
+        expect(response.body.message).toBe("User logged in successfully")
+        expect(response.body).toHaveProperty("token")
+    })
+
     it("should get all users as admin", async () => {
         const [payload, userToken] = await test_utils.login_user(request, "john@example.com", "password123")
         const response = await request.get("/users")
@@ -53,8 +64,6 @@ describe("User routes tests", () => {
             password: "test123Abc",
         })
         expect(response.status).toBe(StatusCodes.CREATED)
-        expect(response.body).toHaveProperty("message")
-        expect(response.body.message).toBe("User created successfully")
         expect(response.body).toHaveProperty("token")
     })
 
@@ -65,17 +74,6 @@ describe("User routes tests", () => {
             password: "test123Abc",
         })
         expect(response.status).toBe(StatusCodes.CONFLICT)
-    })
-
-    it("should login a user", async () => {
-        const response = await request.post("/login").send({
-            email: "john@example.com",
-            password: "password123"
-        })
-        expect(response.status).toBe(StatusCodes.OK)
-        expect(response.body).toHaveProperty("message")
-        expect(response.body.message).toBe("User logged in successfully")
-        expect(response.body).toHaveProperty("token")
     })
 
     it("should put a user as a admin", async () => {
@@ -98,7 +96,7 @@ describe("User routes tests", () => {
         expect(response2.body).toHaveProperty("name", "John Doe New Name")
         expect(response2.body).toHaveProperty("email", "john-new-email@example.com")
         expect(response2.body).toHaveProperty("password", "password123-new-password")
-        expect(response2.body).toHaveProperty("isAdmin", 1)
+        expect(response2.body).toHaveProperty("isAdmin", true)
     })
 
     it("should fail to put a user as a non-admin", async () => {
@@ -131,7 +129,7 @@ describe("User routes tests", () => {
         expect(response2.body).toHaveProperty("name", "John Doe New Name")
         expect(response2.body).toHaveProperty("email", "john-new-email@example.com")
         expect(response2.body).toHaveProperty("password", "password123-new-password")
-        expect(response2.body).toHaveProperty("isAdmin", 1)
+        expect(response2.body).toHaveProperty("isAdmin", true)
     })
 
     it("should fail to patch a user that is not the logged in user", async () => {

@@ -113,7 +113,7 @@ export async function put_task(request: FastifyRequest, reply: FastifyReply) {
             })
 
         // assign data
-        task.owner_id = newInfo.owner_id ?? task.owner_id
+        task.ownerId = newInfo.ownerId ?? task.ownerId
         task.name = newInfo.name ?? task.name
         task.description = newInfo.description ?? task.description
         task.priority = newInfo.priority ?? task.priority
@@ -124,7 +124,7 @@ export async function put_task(request: FastifyRequest, reply: FastifyReply) {
 
         // update task
         await db.query("UPDATE tasks SET owner_id = ?, name = ?, description = ?, priority = ?, points = ?, startDate = ?, endDate = ?, done = ? WHERE id = ?",
-            [task.owner_id, task.name, task.description, task.priority, task.points, utils.format_date_to_sql(task.startDate), utils.format_date_to_sql(task.endDate), task.done, params.id])
+            [task.ownerId, task.name, task.description, task.priority, task.points, utils.format_date_to_sql(task.startDate), utils.format_date_to_sql(task.endDate), task.done, params.id])
             .then((result) => {
                 reply.status(StatusCodes.OK).send({
                     message: "Task updated successfully",

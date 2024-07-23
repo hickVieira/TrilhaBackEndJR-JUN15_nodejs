@@ -1,6 +1,5 @@
 import njwt from 'njwt';
 import { FastifyReply } from "fastify"
-import { StatusCodes } from 'http-status-codes';
 
 export default class utils {
     static readonly algo: string = "HS256";
@@ -27,8 +26,14 @@ export default class utils {
         return payload
     }
 
-    public static emit_error(reply: FastifyReply, error: any, message: string) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: message })
-        console.error(error)
+    public static reply_error(reply: FastifyReply, statusCode: number, errorMessage: string, error: any = undefined) {
+        reply.status(statusCode).send({ message: errorMessage })
+
+        if (error)
+            console.error(error)
+    }
+
+    public static reply_success(reply: FastifyReply, statusCode: number, successMessage: string) {
+        reply.status(statusCode).send({ message: successMessage })
     }
 }

@@ -19,11 +19,11 @@ export class Task {
 }
 
 export class TaskWithOwnerId extends Task {
-    public owner_id: number
+    public ownerId: number
 
     constructor(owner_id: number, name: string, description: string, priority: number, points: number, startDate: Date, endDate: Date, done: boolean) {
         super(name, description, priority, points, startDate, endDate, done)
-        this.owner_id = owner_id
+        this.ownerId = owner_id
     }
 }
 

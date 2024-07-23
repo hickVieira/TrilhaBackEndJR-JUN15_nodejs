@@ -52,25 +52,33 @@ export default class Database {
 
     public static async reset(db: mysql2.Pool) {
         // old
-        {
-            let sql = fs.readFileSync(path.resolve(__dirname, "..", "dbreset.sql"), 'utf8');
-            await db.query(sql).then(() => {
-            }).catch((err) => {
-                console.error("Error reseting database");
-                console.error(err);
-                this.reset(db);
-            });
-        }
+        // {
+        //     let sql = fs.readFileSync(path.resolve(__dirname, "..", "dbreset.sql"), 'utf8');
+        //     await db.query(sql)
+        //         .catch((err) => {
+        //             console.error("Error reseting database");
+        //             console.error(err);
+        //             this.reset(db);
+        //         });
+        // }
 
         // new
         {
             const db = this.get_prisma_connection();
 
-            // reset db
+            // reset sqlite sequence
+            await db
+                .$executeRaw`DELETE FROM sqlite_sequence`
+                .catch((err) => {
+                    console.error("Error reseting database");
+                    console.error(err);
+                });
+
+            // reset tables
             await db
                 .$transaction([
-                    db.user.deleteMany(),
                     db.task.deleteMany(),
+                    db.user.deleteMany(),
                 ])
                 .catch((err) => {
                     console.error("Error reseting database");
@@ -98,11 +106,11 @@ export default class Database {
             await db.task
                 .createMany({
                     data: [
-                        { ownerId: 1, name: 'Task 1', description: 'This is task 1', priority: 1, points: 10, startDate: '2023-01-01', endDate: '2023-02-15', done: false },
-                        { ownerId: 3, name: 'Task 2', description: 'This is task 2', priority: 2, points: 20, startDate: '2023-01-05', endDate: '2023-02-20', done: false },
-                        { ownerId: 1, name: 'Task 3', description: 'This is task 3', priority: 3, points: 30, startDate: '2023-01-10', endDate: '2023-02-25', done: false },
-                        { ownerId: 2, name: 'Task 4', description: 'This is task 4', priority: 3, points: 40, startDate: '2023-01-12', endDate: '2023-02-29', done: false },
-                        { ownerId: 1, name: 'Task 5', description: 'This is task 5', priority: 4, points: 50, startDate: '2023-01-15', endDate: '2023-02-30', done: false },
+                        { ownerId: 1, name: 'Task 1', description: 'This is task 1', priority: 1, points: 10, startDate: new Date(Date.now()), endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), done: false },
+                        { ownerId: 3, name: 'Task 2', description: 'This is task 2', priority: 2, points: 20, startDate: new Date(Date.now()), endDate: new Date(Date.now()), done: false },
+                        { ownerId: 1, name: 'Task 3', description: 'This is task 3', priority: 3, points: 30, startDate: new Date(Date.now()), endDate: new Date(Date.now()), done: false },
+                        { ownerId: 2, name: 'Task 4', description: 'This is task 4', priority: 3, points: 40, startDate: new Date(Date.now()), endDate: new Date(Date.now()), done: false },
+                        { ownerId: 1, name: 'Task 5', description: 'This is task 5', priority: 4, points: 50, startDate: new Date(Date.now()), endDate: new Date(Date.now()), done: false },
                     ]
                 })
                 .then(() => {
