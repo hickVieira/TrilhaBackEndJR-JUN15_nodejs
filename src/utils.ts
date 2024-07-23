@@ -1,4 +1,6 @@
 import njwt from 'njwt';
+import { FastifyReply } from "fastify"
+import { StatusCodes } from 'http-status-codes';
 
 export default class utils {
     static readonly algo: string = "HS256";
@@ -23,5 +25,10 @@ export default class utils {
         const jwt = this.verify_token(token, process.env.JWT_SECRET);
         const payload = jwt?.body.toJSON() as any
         return payload
+    }
+
+    public static emit_error(reply: FastifyReply, error: any, message: string) {
+        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: message })
+        console.error(error)
     }
 }
