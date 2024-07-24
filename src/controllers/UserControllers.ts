@@ -92,6 +92,7 @@ export async function register_user(request: FastifyRequest, reply: FastifyReply
 
                 // send response
                 reply.status(StatusCodes.CREATED).send({
+                    message: "User created successfully",
                     token: token.compact(),
                 })
             })

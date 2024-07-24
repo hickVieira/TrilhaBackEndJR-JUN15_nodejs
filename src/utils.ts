@@ -28,13 +28,6 @@ export default class utils {
         return payload
     }
 
-    public static reply_error_old(reply: FastifyReply, statusCode: number, errorMessage: string, error: any = undefined) {
-        reply.status(statusCode).send({ message: errorMessage })
-
-        if (error)
-            console.error(error)
-    }
-
     public static reply_error(reply: FastifyReply, error: unknown, statusCode?: number) {
         if (error instanceof Err)
             reply.status((error as Err).errorCode).send({ errorCode: (error as Err).errorCode, message: error.message })

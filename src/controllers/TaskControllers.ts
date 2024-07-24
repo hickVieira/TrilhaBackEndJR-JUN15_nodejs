@@ -1,115 +1,127 @@
-import fastify, { FastifyRequest, FastifyReply } from "fastify"
+import { FastifyRequest, FastifyReply } from "fastify"
+import { StatusCodes } from "http-status-codes"
 import { Task, TaskWithOwnerId } from "../models/TaskModels"
 import Database from "../database/Database"
-import { StatusCodes } from "http-status-codes"
 import utils from "../utils"
-import njwt from "njwt"
+import Err from "../Err"
 
 export async function get_all_tasks(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
-        await db.query("SELECT owner_id, name, description, priority, points, startDate, endDate, done FROM tasks")
+        // get all tasks
+        await db.task
+            .findMany()
             .then((result) => {
-                const tasks = result[0] as TaskWithOwnerId[]
-                reply.status(StatusCodes.OK).send(tasks as TaskWithOwnerId[])
+                reply.status(StatusCodes.OK).send(result as Task[])
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Failed to get tasks"
-        })
-        console.error(error)
+        utils.reply_error(reply, error)
     }
 }
 
 export async function get_task_by_id(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
         const params = request.params as { id: number }
 
-        await db.query("SELECT owner_id, name, description, priority, points, startDate, endDate, done FROM tasks WHERE id = ?", [params.id])
+        // get task
+        await db.task
+            .findUnique({
+                where: {
+                    id: Number(params.id)
+                }
+            })
             .then((result) => {
-                const tasks = result[0] as TaskWithOwnerId[]
-                reply.status(StatusCodes.OK).send(tasks[0] as TaskWithOwnerId)
+                if (result == null)
+                    throw new Err(StatusCodes.NOT_FOUND, "Task does not exist")
+
+                reply.status(StatusCodes.OK).send(result as TaskWithOwnerId)
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Task not found"
-        })
-        console.error(error)
+        utils.reply_error(reply, error)
     }
 }
 
 export async function get_all_tasks_by_user_id(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
         const params = request.params as { id: number }
 
-        await db.query("SELECT owner_id, name, description, priority, points, startDate, endDate, done FROM tasks WHERE owner_id = ?", [params.id])
+        // get all tasks by user id
+        await db.task
+            .findMany({
+                where: {
+                    ownerId: Number(params.id)
+                }
+            })
             .then((result) => {
-                const tasks = result[0] as TaskWithOwnerId[]
-                reply.status(StatusCodes.OK).send(tasks as TaskWithOwnerId[])
+                reply.status(StatusCodes.OK).send(result as Task[])
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Failed to get tasks"
-        })
-        console.error(error)
+        utils.reply_error(reply, error)
     }
 }
 
 export async function post_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
         const params = request.params as { id: number }
+
+        // get new task object
         const task = request.body as Task
 
-        await db.query("INSERT INTO tasks (owner_id, name, description, priority, points, startDate, endDate, done) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [params.id, task.name, task.description, task.priority, task.points, utils.format_date_to_sql(task.startDate), utils.format_date_to_sql(task.endDate), task.done])
-            .then((result) => {
-                reply.status(StatusCodes.CREATED).send({
-                    message: "Task created successfully",
-                })
+        // insert task
+        await db.task
+            .create({
+                data: {
+                    ownerId: Number(params.id),
+                    name: task.name,
+                    description: task.description,
+                    priority: task.priority,
+                    points: task.points,
+                    startDate: task.startDate,
+                    endDate: task.endDate,
+                    done: task.done
+                }
             })
-            .catch((error) => {
-                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                    message: "Failed to create task"
-                })
-                console.error(error)
+            .then((result) => {
+                utils.reply_success(reply, StatusCodes.CREATED, "Task created successfully")
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Failed to create task"
-        })
-        console.error(error)
+        utils.reply_error(reply, error)
     }
 }
 
 export async function put_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
-        const newInfo = request.body as TaskWithOwnerId
         const params = request.params as { id: number }
+
+        // get new info
+        const newInfo = request.body as TaskWithOwnerId
 
         // get task
         let task: TaskWithOwnerId = {} as TaskWithOwnerId
-        await db.query("SELECT owner_id, name, description, priority, points, startDate, endDate, done FROM tasks WHERE id = ?", [params.id])
-            .then((result) => {
-                const tasks = result[0] as TaskWithOwnerId[]
-                task = tasks[0] as TaskWithOwnerId
+        await db.task
+            .findUnique({
+                where: {
+                    id: Number(params.id)
+                }
             })
-            .catch((error) => {
-                reply.status(StatusCodes.NOT_FOUND).send({
-                    message: "Task not found"
-                })
-                console.error(error)
+            .then((result) => {
+                if (result == null)
+                    throw new Err(StatusCodes.NOT_FOUND, "Task does not exist")
+
+                task = result as TaskWithOwnerId
             })
 
         // assign data
@@ -123,47 +135,44 @@ export async function put_task(request: FastifyRequest, reply: FastifyReply) {
         task.done = newInfo.done ?? task.done
 
         // update task
-        await db.query("UPDATE tasks SET owner_id = ?, name = ?, description = ?, priority = ?, points = ?, startDate = ?, endDate = ?, done = ? WHERE id = ?",
-            [task.ownerId, task.name, task.description, task.priority, task.points, utils.format_date_to_sql(task.startDate), utils.format_date_to_sql(task.endDate), task.done, params.id])
-            .then((result) => {
-                reply.status(StatusCodes.OK).send({
-                    message: "Task updated successfully",
-                })
+        await db.task
+            .update({
+                where: {
+                    id: Number(params.id)
+                },
+                data: task
             })
-            .catch((error) => {
-                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                    message: "Failed to update task"
-                })
-                console.error(error)
+            .then((result) => {
+                utils.reply_success(reply, StatusCodes.OK, "Task updated successfully")
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Failed to update task"
-        })
-        console.error(error)
+        utils.reply_error(reply, error)
     }
 }
 
 export async function patch_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
-        const newInfo = request.body as Task
         const params = request.params as { id: number }
+
+        // get new info
+        const newInfo = request.body as Task
 
         // get task
         let task: Task = {} as Task
-        await db.query("SELECT name, description, priority, points, startDate, endDate, done FROM tasks WHERE id = ?", [params.id])
-            .then((result) => {
-                const tasks = result[0] as Task[]
-                task = tasks[0] as Task
+        await db.task
+            .findUnique({
+                where: {
+                    id: Number(params.id)
+                }
             })
-            .catch((error) => {
-                reply.status(StatusCodes.NOT_FOUND).send({
-                    message: "Task not found"
-                })
-                console.error(error)
+            .then((result) => {
+                if (result == null)
+                    throw new Err(StatusCodes.NOT_FOUND, "Task does not exist")
+
+                task = result as Task
             })
 
         // assign data
@@ -176,51 +185,40 @@ export async function patch_task(request: FastifyRequest, reply: FastifyReply) {
         task.done = newInfo.done ?? task.done
 
         // update task
-        await db.query("UPDATE tasks SET name = ?, description = ?, priority = ?, points = ?, startDate = ?, endDate = ?, done = ? WHERE id = ?",
-            [task.name, task.description, task.priority, task.points, utils.format_date_to_sql(task.startDate), utils.format_date_to_sql(task.endDate), task.done, params.id])
-            .then((result) => {
-                reply.status(StatusCodes.OK).send({
-                    message: "Task updated successfully",
-                })
+        await db.task
+            .update({
+                where: {
+                    id: Number(params.id)
+                },
+                data: task
             })
-            .catch((error) => {
-                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                    message: "Failed to update task"
-                })
-                console.error(error)
+            .then((result) => {
+                utils.reply_success(reply, StatusCodes.OK, "Task updated successfully")
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Failed to update task"
-        })
-        console.error(error)
+        utils.reply_error(reply, error)
     }
 }
 
 export async function delete_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = await Database.get_internal()
+        const db = Database.get_prisma_connection()
 
         const params = request.params as { id: number }
 
-        await db.query("DELETE FROM tasks WHERE id = ?", [params.id])
-            .then((result) => {
-                reply.status(StatusCodes.OK).send({
-                    message: "Task deleted successfully",
-                })
+        // delete task
+        await db.task
+            .delete({
+                where: {
+                    id: Number(params.id)
+                }
             })
-            .catch((error) => {
-                reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                    message: "Failed to delete task"
-                })
-                console.error(error)
+            .then((result) => {
+                utils.reply_success(reply, StatusCodes.OK, "Task deleted successfully")
             })
     }
     catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            message: "Failed to delete task"
-        })
-        console.error(error)
+        utils.reply_error(reply, error)
     }
 }

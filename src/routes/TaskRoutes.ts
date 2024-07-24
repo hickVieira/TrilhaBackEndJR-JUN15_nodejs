@@ -4,18 +4,11 @@ import { AdminAccess, UserAccess, UserAccessTask } from "../middlewares/AuthMidd
 
 export default function routes(instance: FastifyInstance, options: any, done: HookHandlerDoneFunction) {
     instance.get("/tasks", { preHandler: AdminAccess }, get_all_tasks);
-    // instance.get("/tasks", get_all_tasks);
     instance.get("/tasks/:id", { preHandler: AdminAccess }, get_task_by_id);
-    // instance.get("/tasks/:id", get_task_by_id);
     instance.get("/tasks/user/:id", { preHandler: UserAccess }, get_all_tasks_by_user_id);
-    // instance.get("/tasks/user/:id", get_all_tasks_by_user_id);
     instance.post("/tasks/user/:id", { preHandler: UserAccess }, post_task);
-    // instance.post("/tasks/user/:id", post_task);
     instance.put("/tasks/:id", { preHandler: AdminAccess }, put_task);
-    // instance.put("/tasks/:id", put_task);
     instance.patch("/tasks/:id", { preHandler: UserAccessTask }, patch_task);
-    // instance.patch("/tasks/:id", patch_task);
     instance.delete("/tasks/:id", { preHandler: UserAccessTask }, delete_task);
-    // instance.delete("/tasks/:id", delete_task);
     done();
 }
