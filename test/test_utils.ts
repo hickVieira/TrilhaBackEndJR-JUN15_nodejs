@@ -13,7 +13,7 @@ export default class test_utils {
 
     public static async resetDabase() {
         dotenv.config()
-        await Database.reset(await Database.get_external())
+        await Database.reset()
     }
 
     public static async login_user(request: supertest.Agent, email: string, password: string): Promise<[any, string]> {

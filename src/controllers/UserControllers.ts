@@ -7,7 +7,7 @@ import Err from "../Err"
 
 export async function get_all_users(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // get all users
         await db.user
@@ -23,7 +23,7 @@ export async function get_all_users(request: FastifyRequest, reply: FastifyReply
 
 export async function get_user_by_id(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 
@@ -48,7 +48,7 @@ export async function get_user_by_id(request: FastifyRequest, reply: FastifyRepl
 
 export async function register_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection();
+        const db = Database.get();
 
         // get new user object
         const user = request.body as User
@@ -104,7 +104,7 @@ export async function register_user(request: FastifyRequest, reply: FastifyReply
 
 export async function login_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // get user login data
         const loginData = request.body as { email: string, password: string }
@@ -149,7 +149,7 @@ export async function login_user(request: FastifyRequest, reply: FastifyReply) {
 
 export async function put_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // get new user object
         const newInfo = request.body as { name: string, email: string, password: string, isAdmin: boolean }
@@ -218,7 +218,7 @@ export async function put_user(request: FastifyRequest, reply: FastifyReply) {
 
 export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // get new user object
         const newInfo = request.body as { name: string, email: string, password: string }
@@ -295,7 +295,7 @@ export async function patch_user(request: FastifyRequest, reply: FastifyReply) {
 
 export async function delete_user(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 

@@ -41,7 +41,7 @@ export async function UserAccessUser(request: FastifyRequest, reply: FastifyRepl
 
         const params = request.params as { id: number }
 
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // check if target user exists
         let user: UserWithId = {} as UserWithId
@@ -97,7 +97,7 @@ export async function UserAccessTask(request: FastifyRequest, reply: FastifyRepl
         
         const params = request.params as { id: number }
         
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // check if target task exists
         let task: TaskWithOwnerId = {} as TaskWithOwnerId
@@ -151,7 +151,7 @@ export async function AdminAccess(request: FastifyRequest, reply: FastifyReply) 
 
         const payload = jwt.body.toJSON() as any
 
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // check if user is admin
         let isAdmin: boolean = false;

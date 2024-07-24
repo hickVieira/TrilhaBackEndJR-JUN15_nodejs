@@ -7,7 +7,7 @@ import Err from "../Err"
 
 export async function get_all_tasks(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         // get all tasks
         await db.task
@@ -23,7 +23,7 @@ export async function get_all_tasks(request: FastifyRequest, reply: FastifyReply
 
 export async function get_task_by_id(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 
@@ -48,7 +48,7 @@ export async function get_task_by_id(request: FastifyRequest, reply: FastifyRepl
 
 export async function get_all_tasks_by_user_id(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 
@@ -70,7 +70,7 @@ export async function get_all_tasks_by_user_id(request: FastifyRequest, reply: F
 
 export async function post_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 
@@ -102,7 +102,7 @@ export async function post_task(request: FastifyRequest, reply: FastifyReply) {
 
 export async function put_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 
@@ -153,7 +153,7 @@ export async function put_task(request: FastifyRequest, reply: FastifyReply) {
 
 export async function patch_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 
@@ -203,7 +203,7 @@ export async function patch_task(request: FastifyRequest, reply: FastifyReply) {
 
 export async function delete_task(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const db = Database.get_prisma_connection()
+        const db = Database.get()
 
         const params = request.params as { id: number }
 
