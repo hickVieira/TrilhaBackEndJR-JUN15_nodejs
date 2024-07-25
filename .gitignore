@@ -1,8 +1,7 @@
 node_modules
-package-lock.json
 dist
 .tap
 *.js
 **/database.db
 **/dev.db
-.env
+./.env
