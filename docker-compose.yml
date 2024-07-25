@@ -1,32 +1,21 @@
 services:
-  app:
-    container_name: app
-    build: .
-    restart: always
-    depends_on:
-      - db
-    environment:
-      APP_PORT: ${APP_PORT}
-      APP_HOST: ${APP_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_HOST: ${DB_HOST}
-      DB_NAME: ${DB_NAME}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_USER: ${DB_USER}
-    ports:
-      - ${APP_PORT}:${APP_PORT}
-
-  db:
+  db: 
     container_name: db
-    image: mysql:latest
+    image: postgres
     restart: always
+    shm_size: 128mb # set shared memory limit when using docker-compose
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      POSTGRES_DB: db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
       - ${DB_PORT}:${DB_PORT}
-    expose:
-      - ${DB_PORT}
 
   adminer:
     image: adminer
@@ -35,3 +24,44 @@ services:
       - db
     ports:
       - ${ADMINER_PORT}:${ADMINER_PORT}
+
+# services:
+#   # app:
+#   #   container_name: app
+#   #   build: .
+#   #   restart: always
+#   #   depends_on:
+#   #     - db
+#   #   environment:
+#   #     APP_PORT: ${APP_PORT}
+#   #     APP_HOST: ${APP_HOST}
+#   #     DB_PORT: ${DB_PORT}
+#   #     DB_HOST: ${DB_HOST}
+#   #     DB_NAME: ${DB_NAME}
+#   #     DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+#   #     DB_USER: ${DB_USER}
+#   #   ports:
+#   #     - ${APP_PORT}:${APP_PORT}
+
+#   db:
+#     container_name: db
+#     image: mysql:latest
+#     restart: always
+#     environment:
+#       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+#       MYSQL_DATABASE: ${DB_NAME}
+#     ports:
+#       - ${DB_PORT}:${DB_PORT}
+#     expose:
+#       - ${DB_PORT}
+
+#   adminer:
+#     image: adminer
+#     restart: always
+#     depends_on:
+#       - db
+#     ports:
+#       - ${ADMINER_PORT}:${ADMINER_PORT}
+
+
+# Use postgres/example user/password credentials

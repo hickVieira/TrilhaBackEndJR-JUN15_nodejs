@@ -8,20 +8,26 @@ export default class Database {
     public static async reset() {
         const db = this.get();
 
-        // reset sqlite sequence
-        await db
-            .$executeRaw`DELETE FROM sqlite_sequence`
-            .catch((err) => {
-                console.error("Error reseting database");
-                console.error(err);
-            });
-
         // reset tables
         await db
             .$transaction([
                 db.task.deleteMany(),
                 db.user.deleteMany(),
             ])
+            .catch((err) => {
+                console.error("Error reseting database");
+                console.error(err);
+            });
+
+        // reset increment sequence
+        await db
+            .$queryRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`
+            .catch((err) => {
+                console.error("Error reseting database");
+                console.error(err);
+            });
+        await db
+            .$queryRaw`ALTER SEQUENCE "Task_id_seq" RESTART WITH 1;`
             .catch((err) => {
                 console.error("Error reseting database");
                 console.error(err);
@@ -36,8 +42,6 @@ export default class Database {
                     { name: 'Fulano Siclano', email: 'fulano@example.com', password: 'brasil123', isAdmin: false },
                     { name: 'Luizo Henrico', email: 'luizeco@example.com', password: 'abc123', isAdmin: false },
                 ]
-            })
-            .then(() => {
             })
             .catch((err) => {
                 console.error("Error reseting database");
@@ -54,8 +58,6 @@ export default class Database {
                     { ownerId: 2, name: 'Task 4', description: 'This is task 4', priority: 3, points: 40, startDate: new Date(Date.now()), endDate: new Date(Date.now()), done: false },
                     { ownerId: 1, name: 'Task 5', description: 'This is task 5', priority: 4, points: 50, startDate: new Date(Date.now()), endDate: new Date(Date.now()), done: false },
                 ]
-            })
-            .then(() => {
             })
             .catch((err) => {
                 console.error("Error reseting database");
