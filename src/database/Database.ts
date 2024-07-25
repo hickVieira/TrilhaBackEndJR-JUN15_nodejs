@@ -1,8 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 
 export default class Database {
+    private static _db: PrismaClient;
+
     public static get() {
-        return new PrismaClient();
+        if (this._db == null)
+            this._db = new PrismaClient();
+        return this._db;
     }
 
     public static async reset() {
@@ -63,5 +67,7 @@ export default class Database {
                 console.error("Error reseting database");
                 console.error(err);
             });
+        
+        db.$disconnect();
     }
 }
