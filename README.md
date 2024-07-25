@@ -1,21 +1,22 @@
 ## App de Tarefas
 
 ### Running
-1. Start by running containers/services
+1. Start docker database
    ```bash
-   sudo docker compose up --build
+   sudo docker compose up
    ```
 2. API access on [localhost:3000](http://localhost:3000)
-3. Adminer access on [localhost:8080](http://localhost:8080)
-   - username: root
-   - password: admin
+3. Prisma Studio
+   ```bash
+   npx prisma studio
+   ```
 4. Run tests
    ```bash
    npm run test
    ```
-5. Stop container/services
+5. Stop docker
    ```bash
-   sudo docker compose down -v
+   sudo docker compose down
    ```
 
 ## Endpoints
@@ -36,15 +37,15 @@
    - patch "/tasks/:id"
    - delete "/tasks/:id"
 
-
 ### Techstack
 - NodeJS
 - Typescript
 - Fastify
+- Prisma
+- Docker
+- PostgreSQL
 - Jest
 - SuperTest
-- MySQL
-- Docker
 
 ### Checklist
 - [x] env vars
@@ -53,7 +54,7 @@
 - [x] tests
    - [x] user routes
    - [x] task routes
-   - [x] e2e 
+   - [x] e2e test
 - [x] user routes
    - [x] get users
    - [x] get user by id
@@ -75,6 +76,9 @@
    - [x] image
    - [x] compose
    - [x] database
+   - [x] sqlite
+   - [x] msql
+   - [x] postgresql
 - [ ] ci/cd
    - [ ] github actions
    - [ ] deploy
