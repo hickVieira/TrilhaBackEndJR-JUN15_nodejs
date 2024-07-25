@@ -8,7 +8,7 @@ export default class test_utils {
 
     public static async get_connection(): Promise<supertest.Agent> {
         dotenv.config()
-        return supertest(`localhost:${process.env.APP_PORT}`)
+        return supertest('localhost:3000')
     }
 
     public static async resetDabase() {

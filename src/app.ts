@@ -8,14 +8,14 @@ const fastify = Fastify({
     logger: true
 })
 
-// user routes
+// routes
 fastify.register(UserRoutes);
 fastify.register(TaskRoutes);
 
 // start
 async function start() {
     try {
-        await fastify.listen({ port: Number(process.env.APP_PORT), host: process.env.APP_HOST })
+        await fastify.listen({ port: 3000, host: "localhost" })
     } catch (err) {
         fastify.log.error(err)
         process.exit(1)
