@@ -2,10 +2,11 @@
   "name": "api-de-tarefas",
   "main": "src/app.ts",
   "scripts": {
-    "dev": "tsx watch src/app.ts",
-    "start": "node dist/src/app.js",
-    "build": "npx tsc",
-    "test": "jest --detectOpenHandles --forceExit"
+    "start_dev": "tsx watch src/app.ts",
+    "test_dev": "jest ./test --detectOpenHandles --forceExit",
+    "build": "rm -r dist && npx tsc && npx prisma migrate deploy",
+    "start_prod": "node dist/src/app.js",
+    "test_prod": "jest dist/test --detectOpenHandles --forceExit"
   },
   "keywords": [],
   "author": "hickv",
