@@ -1,25 +1,30 @@
 ## App de Tarefas
+https://trilhabackendjr-jun15-nodejs.onrender.com
 
-### Running
-1. Start docker database
-   ```bash
-   sudo docker compose up
-   ```
-2. API access on [localhost:3000](http://localhost:3000)
-3. Prisma Studio
-   ```bash
-   npx prisma studio
-   ```
-4. Run tests
-   ```bash
-   npm run test
-   ```
-5. Stop docker
-   ```bash
-   sudo docker compose down
-   ```
+### quick-run script
+```bash
+rm -rf tasks-app &&
+mkdir tasks-app &&
+git clone https://github.com/hickVieira/TrilhaBackEndJR-JUN15_nodejs.git ./tasks-app &&
+cd ./tasks-app &&
+git checkout dev &&
+npm ci &&
+npm run test &&
+cd ..
+```
 
-## Endpoints
+### notes, rants, takeaways
+- typescript to javascript transpilation and workarounds suck
+- node ecosystem sucks big
+- typescript env vars setup is a complete joke
+- tests MUST be sequential due to calls to /reset-db constraints
+   - this was my mistake, never gonna do this again, results in slow test process
+- docker setup is hell
+- should have had a working deployed mvp on render sooner
+   - the whole docker compose stuff was total waste of time and useless
+- sql databases suck to setup
+
+### endpoints
 - users
    - get "/users"
    - get "/users/:id"
@@ -37,7 +42,7 @@
    - patch "/tasks/:id"
    - delete "/tasks/:id"
 
-### Techstack
+### techstack
 - NodeJS
 - Typescript
 - Fastify
@@ -47,7 +52,7 @@
 - Jest
 - SuperTest
 
-### Checklist
+### checklist
 - [x] env vars
 - [x] database reset util
 - [ ] password encryption
@@ -79,6 +84,7 @@
    - [x] sqlite
    - [x] msql
    - [x] postgresql
+- [x] deploy
 - [ ] ci/cd
    - [ ] github actions
    - [ ] deploy
