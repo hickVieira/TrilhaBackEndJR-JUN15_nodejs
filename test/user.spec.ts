@@ -11,7 +11,7 @@ describe("User routes tests", () => {
     })
 
     beforeEach(async () => {
-        await test_utils.resetDabase()
+        await test_utils.resetDabase(request)
     })
 
     it("should login a user", async () => {

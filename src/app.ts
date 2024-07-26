@@ -1,11 +1,21 @@
 import Fastify from 'fastify'
 import UserRoutes from './routes/UserRoutes'
 import TaskRoutes from './routes/TaskRoutes'
-import dotenv from 'dotenv'
-dotenv.config()
+import Database from './database/Database'
+import utils from './utils'
+import { StatusCodes } from 'http-status-codes'
 
 const fastify = Fastify({
     logger: true
+})
+
+fastify.get("/", async (request, reply) => {
+    return { hello: "world" }
+})
+
+fastify.get("/reset-db", async (request, reply) => {
+    await Database.reset();
+    utils.reply_success(reply, StatusCodes.OK, "Database reset successfully")
 })
 
 // routes

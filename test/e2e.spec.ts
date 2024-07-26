@@ -9,7 +9,10 @@ describe("E2E test that creates a user, logins a user, creates a task as a logge
 
     beforeAll(async () => {
         request = await test_utils.get_connection();
-        await test_utils.resetDabase()
+    })
+
+    beforeEach(async () => {
+        await test_utils.resetDabase(request)
     })
 
     it("should create a user account", async () => {
