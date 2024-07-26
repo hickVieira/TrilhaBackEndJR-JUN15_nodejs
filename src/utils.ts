@@ -1,5 +1,5 @@
 import njwt from 'njwt';
-import { FastifyReply, errorCodes } from "fastify"
+import { FastifyReply } from "fastify"
 import Err from './Err';
 import { StatusCodes } from 'http-status-codes';
 

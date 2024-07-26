@@ -1,9 +1,11 @@
 import supertest from "supertest"
 import njwt from 'njwt';
 import utils from "../src/utils";
+import * as dotenv from 'dotenv';
 
 export default class test_utils {
     public static async get_connection(): Promise<supertest.Agent> {
+        dotenv.config();
         return await supertest("https://trilhabackendjr-jun15-nodejs.onrender.com")
     }
 

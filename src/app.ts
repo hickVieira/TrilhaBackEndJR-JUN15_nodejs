@@ -4,6 +4,8 @@ import TaskRoutes from './routes/TaskRoutes'
 import Database from './database/Database'
 import utils from './utils'
 import { StatusCodes } from 'http-status-codes'
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const fastify = Fastify({
     logger: true
