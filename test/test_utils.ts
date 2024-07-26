@@ -4,11 +4,11 @@ import utils from "../src/utils";
 
 export default class test_utils {
     public static async get_connection(): Promise<supertest.Agent> {
-        return supertest('https://trilhabackendjr-jun15-nodejs.onrender.com/')
+        return await supertest("https://trilhabackendjr-jun15-nodejs.onrender.com")
     }
 
     public static async resetDabase(request: supertest.Agent) {
-        var response = await request.get('/reset-db')
+        await request.get("/reset-db")
     }
 
     public static async login_user(request: supertest.Agent, email: string, password: string): Promise<[any, string]> {
